@@ -1,0 +1,791 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>关于本机</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-body: #f5f5f7;
+            --bg-sidebar: rgba(255, 255, 255, 0.8);
+            --bg-content: #ffffff;
+            --bg-card: rgba(242, 242, 247, 0.6);
+            --text-primary: #1c1c1e;
+            --text-secondary: #3a3a3c;
+            --text-muted: #8e8e93;
+            --border-color: rgba(0, 0, 0, 0.1);
+            --separator: rgba(0, 0, 0, 0.05);
+            --timeline-bg: #ffffff;
+            --timeline-shadow: 0 2px 8px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.03);
+            --timeline-border: 1px solid rgba(0, 0, 0, 0.05);
+            
+            /* 紫色主色调 */
+            --accent: #8A5FFF;
+            --accent-light: rgba(138, 95, 255, 0.15);
+            --accent-hover: rgba(138, 95, 255, 0.1);
+            --accent-dark-bg: rgba(138, 95, 255, 0.2);
+        }
+
+        body.dark-mode {
+            --bg-body: #1c1c1e;
+            --bg-sidebar: rgba(30, 30, 40, 0.8);
+            --bg-content: #2c2c2e;
+            --bg-card: rgba(44, 44, 46, 0.6);
+            --text-primary: #f5f5f7;
+            --text-secondary: #a1a1a6;
+            --text-muted: #8e8e93;
+            --border-color: rgba(255, 255, 255, 0.1);
+            --separator: rgba(255, 255, 255, 0.08);
+            --timeline-bg: #2c2c2e;
+            --timeline-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+            --timeline-border: 1px solid rgba(255, 255, 255, 0.08);
+            
+            /* 深色模式紫色微调 */
+            --accent-light: rgba(138, 95, 255, 0.2);
+            --accent-hover: rgba(138, 95, 255, 0.15);
+            --accent-dark-bg: rgba(138, 95, 255, 0.25);
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background: var(--bg-body);
+            height: 100vh;
+            overflow: hidden;
+            color: var(--text-primary);
+            transition: background 0.3s, color 0.3s;
+        }
+
+        .container {
+            display: flex;
+            height: 100vh;
+        }
+
+        /* 左侧边栏 - 紫色系激活状态 */
+        .sidebar {
+            width: 200px;
+            background: var(--bg-sidebar);
+            backdrop-filter: blur(20px);
+            border-right: 1px solid var(--border-color);
+            padding: 20px 0;
+            overflow-y: auto;
+            flex-shrink: 0;
+            transition: background 0.3s, border-color 0.3s;
+        }
+
+        .sidebar-item {
+            padding: 12px 20px;
+            cursor: pointer;
+            font-size: 13px;
+            color: var(--text-primary);
+            border-left: 3px solid transparent;
+            transition: all 0.2s;
+            position: relative;
+        }
+
+        .sidebar-item:hover {
+            background: var(--accent-hover);
+        }
+
+        .sidebar-item.active {
+            background: var(--accent-light);
+            border-left-color: transparent;
+            font-weight: 600;
+        }
+
+        .sidebar-item::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 20px;
+            right: 20px;
+            height: 1px;
+            background: var(--border-color);
+            transition: background 0.3s;
+        }
+
+        /* 右侧内容区 */
+        .content {
+            flex: 1;
+            overflow: hidden;
+            background: var(--bg-content);
+            position: relative;
+            transition: background 0.3s;
+        }
+
+        .content-section {
+            display: none;
+            width: 100%;
+            height: 100%;
+            overflow-y: auto;
+            animation: fadeIn 0.3s ease;
+            padding: 40px;
+        }
+
+        .content-section.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        h1 {
+            font-size: 24px;
+            margin-bottom: 20px;
+            font-weight: 700;
+            color: var(--text-primary);
+            transition: color 0.3s;
+        }
+
+        h2 {
+            font-size: 18px;
+            margin: 25px 0 15px;
+            font-weight: 600;
+            color: var(--text-primary);
+            transition: color 0.3s;
+        }
+
+        p, li {
+            font-size: 13px;
+            line-height: 1.6;
+            color: var(--text-secondary);
+            margin-bottom: 10px;
+            transition: color 0.3s;
+        }
+
+        ul, ol {
+            margin-left: 20px;
+            margin-bottom: 15px;
+        }
+
+        li {
+            margin-bottom: 8px;
+        }
+
+        /* 紫色系链接 */
+        a {
+            color: var(--accent);
+            text-decoration: none;
+            border-bottom: 1px solid var(--accent);
+            padding-bottom: 1px;
+        }
+
+        a:hover {
+            opacity: 0.8;
+        }
+
+        hr {
+            border: none;
+            border-top: 1px solid var(--border-color);
+            margin: 25px 0;
+            transition: border-color 0.3s;
+        }
+
+        /* 开发人员卡片 */
+        .dev-list {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .dev-card {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 15px;
+            background: var(--bg-card);
+            border-radius: 12px;
+            transition: background 0.3s;
+        }
+
+        .dev-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid var(--bg-content);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            flex-shrink: 0;
+            transition: border-color 0.3s;
+        }
+
+        .dev-info h3 {
+            margin: 0 0 4px 0;
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--text-primary);
+            transition: color 0.3s;
+        }
+
+        .dev-info p {
+            margin: 0;
+            font-size: 12px;
+            color: var(--text-muted);
+            transition: color 0.3s;
+        }
+
+        /* 图片查看器（保留结构，无颜色影响） */
+        .image-viewer {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            z-index: 10000;
+            justify-content: center;
+            align-items: center;
+            cursor: zoom-out;
+        }
+
+        .image-viewer.active {
+            display: flex;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .image-viewer img {
+            max-width: 80%;
+            max-height: 80%;
+            border-radius: 12px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+        }
+
+        .image-viewer .close-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(255,255,255,0.1);
+            border-radius: 50%;
+            transition: all 0.2s;
+        }
+
+        .image-viewer .close-btn:hover {
+            background: rgba(255,255,255,0.2);
+        }
+
+        /* FAQ 紫色左侧装饰条 */
+        .qa-list { max-width: 600px; }
+
+        .qa-item {
+            margin-bottom: 20px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--separator);
+            transition: border-color 0.3s;
+        }
+
+        .qa-item:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+
+        .question {
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+            font-size: 14px;
+            transition: color 0.3s;
+        }
+
+        .answer {
+            color: var(--text-secondary);
+            padding-left: 15px;
+            border-left: 3px solid var(--accent);
+            font-size: 13px;
+            line-height: 1.6;
+            transition: color 0.3s;
+        }
+
+        /* 更新历史 - 纯净无紫装饰，只做折叠卡片 */
+        .timeline {
+            max-width: 700px;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .timeline-item {
+            background: var(--timeline-bg);
+            border-radius: 16px;
+            padding: 16px 20px;
+            box-shadow: var(--timeline-shadow);
+            border: var(--timeline-border);
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .timeline-header {
+            display: flex;
+            align-items: baseline;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .timeline-date {
+            font-size: 12px;
+            font-weight: 500;
+            color: var(--text-muted);
+            background: var(--bg-card);
+            padding: 4px 12px;
+            border-radius: 30px;
+            letter-spacing: 0.3px;
+        }
+
+        .timeline-version {
+            font-weight: 700;
+            font-size: 18px;
+            color: var(--text-primary);
+            letter-spacing: -0.3px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .toggle-icon {
+            font-size: 14px;
+            color: var(--text-muted);
+            margin-left: 4px;
+        }
+
+        .timeline-content {
+            display: none;
+            margin-top: 16px;
+            padding-top: 12px;
+            border-top: 1px solid var(--separator);
+            font-size: 13px;
+            color: var(--text-secondary);
+            line-height: 1.55;
+        }
+
+        .timeline-item.expanded .timeline-content {
+            display: block;
+        }
+
+        .timeline-content ul {
+            margin: 8px 0 0 20px;
+            padding-left: 4px;
+        }
+
+        .timeline-content li {
+            margin-bottom: 6px;
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+
+        .timeline-item:hover {
+            transform: none;
+            background: var(--timeline-bg);
+            box-shadow: var(--timeline-shadow);
+            cursor: pointer;
+        }
+
+        @media (max-width: 640px) {
+            .content-section {
+                padding: 24px;
+            }
+            .timeline-item {
+                padding: 14px 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- 左侧边栏 -->
+        <div class="sidebar">
+            <div class="sidebar-item active" data-section="about">关于</div>
+            <div class="sidebar-item" data-section="developers">开发人员</div>
+            <div class="sidebar-item" data-section="faq">常见问题</div>
+            <div class="sidebar-item" data-section="history">更新历史</div>
+        </div>
+
+        <!-- 右侧内容 -->
+        <div class="content">
+            <div class="content-section active" id="about">
+                <h1>欢迎使用 macOS 网页版</h1>
+
+                <h2>声明：</h2>
+                <ol>
+                    <li>本项目与 <a href="https://www.apple.com" target="_blank">Apple Inc.</a> 无任何关系</li>
+                    <li>本项目绝不附属于 Apple Inc.</li>
+                    <li>项目中的 siri 与 Apple 的智能助手 Siri 无任何关系</li>
+                    <li>本项目中的部分 UI 组件来源于 <a href="https://uiverse.io/" target="_blank">https://uiverse.io/</a></li>
+                    <li>项目图标由豆包AI生成</li>
+                </ol>
+
+                <hr>
+
+                <ol>
+                    <li>本项目原创作者 <strong>Minecraft_goose</strong>，灵感来源于 <a href="https://tjy-gitnub.github.io/win12/desktop.html" target="_blank">Win12网页版</a></li>
+                    <li>本项目网址为 <a href="https://minecraftgoose.github.io/macos" target="_blank">https://minecraftgoose.github.io/macos</a>或<a href="https://macos.netlify.app" target="_blank">https://macos.netlify.app</a>不保证镜像链接安全</li>
+                    <li>如果你发现 bug 或想加一些功能，欢迎到 kimi社区搜索Minecraft_goose或提交 <a href="https://github.com/minecraftgoose/macos/issues" target="_blank">issues</a></li>
+                </ol>
+            </div>
+
+            <!-- 开发人员页面 -->
+            <div class="content-section" id="developers">
+                <h1>开发人员</h1>
+                <p style="margin-bottom: 20px; color: var(--text-muted);">他们都在 Kimi 社区（包括间接开发者）</p>
+
+                <div class="dev-list">
+                    <div class="dev-card">
+                        <img src="./headphoto/goose.webp" class="dev-avatar" alt="Minecraftgoose">
+                        <div class="dev-info">
+                            <h3>Minecraft_goose</h3>
+                            <p>主开发者</p>
+                        </div>
+                    </div>
+
+                    <div class="dev-card">
+                        <img src="./headphoto/jh.webp" class="dev-avatar" alt="界合创新">
+                        <div class="dev-info">
+                            <h3>界合创新</h3>
+                            <p>小宁AI开发者，Siriagent支持者</p>
+                        </div>
+                    </div>
+
+                    <div class="dev-card">
+                        <img src="./headphoto/yk.webp" class="dev-avatar" alt="影箜">
+                        <div class="dev-info">
+                            <h3>影箜 shadow kong</h3>
+                            <p>Safari开发者</p>
+                        </div>
+                    </div>
+
+                    <div class="dev-card">
+                        <img src="./headphoto/Q.webp" class="dev-avatar" alt="琪初">
+                        <div class="dev-info">
+                            <h3>琪初</h3>
+                            <p>天气API提供者</p>
+                        </div>
+                    </div>
+
+                    <div class="dev-card">
+                        <img src="./headphoto/apple.webp" class="dev-avatar" alt="Apple">
+                        <div class="dev-info">
+                            <h3>Apple Office</h3>
+                            <p>灵动岛底层开发者</p>
+                        </div>
+                    </div>
+
+                    <div class="dev-card">
+                        <img src="./headphoto/lm.webp" class="dev-avatar" alt="loogmoon">
+                        <div class="dev-info">
+                            <h3>longmoon</h3>
+                            <p>待办开发者</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 常见问题 -->
+            <div class="content-section" id="faq">
+                <div class="qa-list">
+                    <div class="qa-item">
+                        <div class="question">Q: 支持PWA吗</div>
+                        <div class="answer">
+                            A: 你来晚了⊙▂⊙，已经暂停对PWA的支持¬_¬
+                        </div>
+                    </div>
+
+                    <div class="qa-item">
+                        <div class="question">Q: 动画经常缺失？</div>
+                        <div class="answer">
+                            A: 这是一个历史遗留 bug，正在尝试修复。
+                        </div>
+                    </div>
+
+                    <div class="qa-item">
+                        <div class="question">Q: 软件太少？</div>
+                        <div class="answer">
+                            A: 我们一直在优化系统，后续可能会推出 App Store。
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 更新历史 - 默认折叠，点击展开 -->
+            <div class="content-section" id="history">
+                <div class="timeline">
+                    <!-- 新增版本 v1.0.1 (2026/5/5) Siriagent上线，Gooseglass上线 -->
+                    <div class="timeline-item">
+                        <div class="timeline-header">
+                            <span class="timeline-date">2026/5/5</span>
+                            <span class="timeline-version">v1.0.1 <i class="fas fa-chevron-down toggle-icon"></i></span>
+                        </div>
+                        <div class="timeline-content">
+                            <ul>
+                                <li>Siriagent 上线</li>
+                                <li>Gooseglass 上线</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="timeline-item">
+                        <div class="timeline-header">
+                            <span class="timeline-date">2026/4/30</span>
+                            <span class="timeline-version">v1.0.07 <i class="fas fa-chevron-down toggle-icon"></i></span>
+                        </div>
+                        <div class="timeline-content">
+                            <ul>
+                                <li>突破性能瓶颈</li>
+                                <li>Siri UI 2.0</li>
+                                <li>超级灵动岛 2.0</li>
+                                <li>动画系统 2.0</li>
+                                <li>macOS 网页版满月庆祝</li>
+                                <li>Goose UI 2.0</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="timeline-item">
+                        <div class="timeline-header">
+                            <span class="timeline-date">2026/4/26</span>
+                            <span class="timeline-version">v1.0.020 <i class="fas fa-chevron-down toggle-icon"></i></span>
+                        </div>
+                        <div class="timeline-content">
+                            <ul>
+                                <li>修复AI问题</li>
+                                <li>新增灵动岛</li>
+                                <li>优化动画</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="timeline-item">
+                        <div class="timeline-header">
+                            <span class="timeline-date">2026/4/24</span>
+                            <span class="timeline-version">v1.0.010 <i class="fas fa-chevron-down toggle-icon"></i></span>
+                        </div>
+                        <div class="timeline-content">
+                            <ul>
+                                <li>删掉了PWA</li>
+                                <li>加了一个dock栏</li>
+                                <li>优化动画</li>
+                                <li>新增天气应用</li>
+                                <li>Safari升级</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="timeline-item">
+                        <div class="timeline-header">
+                            <span class="timeline-date">2026/4/18</span>
+                            <span class="timeline-version">v1.0.000 <i class="fas fa-chevron-down toggle-icon"></i></span>
+                        </div>
+                        <div class="timeline-content">
+                            内测结束，macOS 正式发布
+                            <ul>
+                                <li>更新了 Siri 的 UI</li>
+                                <li>添加了"关于"应用</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="timeline-item">
+                        <div class="timeline-header">
+                            <span class="timeline-date">2026/4/11</span>
+                            <span class="timeline-version">v0.9 <i class="fas fa-chevron-down toggle-icon"></i></span>
+                        </div>
+                        <div class="timeline-content">
+                            <ul>
+                                <li>删掉了 siri 的跑马灯</li>
+                                <li>优化窗口动画</li>
+                                <li>新增控制中心</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="timeline-item">
+                        <div class="timeline-header">
+                            <span class="timeline-date">2026/4/4</span>
+                            <span class="timeline-version">v0.8 <i class="fas fa-chevron-down toggle-icon"></i></span>
+                        </div>
+                        <div class="timeline-content">
+                            <ul>
+                                <li>添加了 siri</li>
+                                <li>添加了防入侵浏览器</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="timeline-item">
+                        <div class="timeline-header">
+                            <span class="timeline-date">2026/4/3</span>
+                            <span class="timeline-version">v0.7 <i class="fas fa-chevron-down toggle-icon"></i></span>
+                        </div>
+                        <div class="timeline-content">
+                            <ul>
+                                <li>添加壁纸</li>
+                                <li>添加图标</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="timeline-item">
+                        <div class="timeline-header">
+                            <span class="timeline-date">2026/4/2</span>
+                            <span class="timeline-version">v0.5-beta <i class="fas fa-chevron-down toggle-icon"></i></span>
+                        </div>
+                        <div class="timeline-content">
+                            <ul>
+                                <li>调整 dock 栏</li>
+                                <li>代码模块化</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="timeline-item">
+                        <div class="timeline-header">
+                            <span class="timeline-date">2026/4/1</span>
+                            <span class="timeline-version">v0.3 <i class="fas fa-chevron-down toggle-icon"></i></span>
+                        </div>
+                        <div class="timeline-content">
+                            《父辈的天空》？81192？<br>
+                            愚人节快乐
+                        </div>
+                    </div>
+
+                    <div class="timeline-item">
+                        <div class="timeline-header">
+                            <span class="timeline-date">2026/3/28</span>
+                            <span class="timeline-version">v0.1 <i class="fas fa-chevron-down toggle-icon"></i></span>
+                        </div>
+                        <div class="timeline-content">
+                            Trae 写出了底层框架<br>
+                            在此基础上，macOS 被逐步搭建...
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="image-viewer" id="imageViewer" onclick="closeImage()">
+        <div class="close-btn" onclick="event.stopPropagation(); closeImage()">
+            <i class="fas fa-times"></i>
+        </div>
+        <img src="" alt="查看图片" id="viewerImage">
+    </div>
+
+    <script>
+        // 侧边栏切换
+        document.querySelectorAll('.sidebar-item').forEach(item => {
+            item.addEventListener('click', function() {
+                document.querySelectorAll('.sidebar-item').forEach(i => i.classList.remove('active'));
+                document.querySelectorAll('.content-section').forEach(s => s.classList.remove('active'));
+
+                this.classList.add('active');
+                const sectionId = this.getAttribute('data-section');
+                document.getElementById(sectionId).classList.add('active');
+            });
+        });
+
+        // 更新历史折叠/展开：默认所有卡片折叠，点击切换展开状态并旋转图标
+        const timelineItems = document.querySelectorAll('.timeline-item');
+        timelineItems.forEach(item => {
+            item.classList.remove('expanded');
+            const icon = item.querySelector('.toggle-icon');
+            if (icon) {
+                icon.classList.remove('fa-chevron-up');
+                icon.classList.add('fa-chevron-down');
+            }
+            item.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const isExpanded = item.classList.contains('expanded');
+                const targetIcon = item.querySelector('.toggle-icon');
+                if (isExpanded) {
+                    item.classList.remove('expanded');
+                    if (targetIcon) {
+                        targetIcon.classList.remove('fa-chevron-up');
+                        targetIcon.classList.add('fa-chevron-down');
+                    }
+                } else {
+                    item.classList.add('expanded');
+                    if (targetIcon) {
+                        targetIcon.classList.remove('fa-chevron-down');
+                        targetIcon.classList.add('fa-chevron-up');
+                    }
+                }
+            });
+        });
+
+        // 图片查看器（保留，虽未调用但无样式影响）
+        function showImage(src) {
+            const viewer = document.getElementById('imageViewer');
+            const img = document.getElementById('viewerImage');
+            img.src = src;
+            viewer.classList.add('active');
+        }
+
+        function closeImage() {
+            const viewer = document.getElementById('imageViewer');
+            viewer.classList.remove('active');
+        }
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') closeImage();
+        });
+
+        // 深色模式同步及初始检测
+        window.addEventListener('message', (e) => {
+            if (e.data && e.data.type === 'darkMode') {
+                if (e.data.enabled) {
+                    document.body.classList.add('dark-mode');
+                } else {
+                    document.body.classList.remove('dark-mode');
+                }
+            }
+        });
+
+        if (window.matchMedia) {
+            const darkModeQuery = window.matchMedia('(prefers-color-scheme: dark)');
+            darkModeQuery.addEventListener('change', (e) => {
+                if (e.matches) {
+                    document.body.classList.add('dark-mode');
+                } else {
+                    document.body.classList.remove('dark-mode');
+                }
+            });
+        }
+
+        window.addEventListener('load', () => {
+            if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                document.body.classList.add('dark-mode');
+            }
+            if (window.parent !== window) {
+                window.parent.postMessage({ type: 'aboutLoaded' }, '*');
+            }
+        });
+
+        window.addEventListener('message', (e) => {
+            if (e.data && e.data.type === 'switchTab') {
+                const tab = e.data.tab;
+                const targetItem = document.querySelector(`.sidebar-item[data-section="${tab}"]`);
+                if (targetItem) {
+                    targetItem.click();
+                }
+            }
+        });
+    </script>
+</body>
+</html>

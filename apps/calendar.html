@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>日历</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background: rgba(245, 245, 247, 0.95);
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            padding: 0;
+            overflow: hidden;
+        }
+
+        .calendar-card {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(20px);
+            border-radius: 0;
+            box-shadow: none;
+            overflow: hidden;
+            border: none;
+            height: 100%;
+        }
+
+        .calendar-header {
+            background: linear-gradient(135deg, #ff9f0a, #ff5e3a);
+            padding: 20px 24px;
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-shrink: 0;
+        }
+
+        .month-year {
+            font-size: clamp(18px, 5vw, 28px);
+            font-weight: 600;
+        }
+
+        .nav-buttons {
+            display: flex;
+            gap: 12px;
+        }
+
+        .nav-btn {
+            background: rgba(255,255,255,0.2);
+            border: none;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            cursor: pointer;
+            color: white;
+            font-size: 18px;
+            transition: 0.2s;
+        }
+
+        .nav-btn:hover {
+            background: rgba(255,255,255,0.4);
+        }
+
+        .weekdays {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            text-align: center;
+            padding: 16px 8px 8px;
+            font-weight: 600;
+            color: #8e8e93;
+            border-bottom: 1px solid rgba(0,0,0,0.1);
+            background: rgba(255,255,255,0.4);
+            flex-shrink: 0;
+        }
+
+        .calendar-days {
+            flex: 1;
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 2px;
+            padding: 8px;
+            background: rgba(255,255,255,0.5);
+            overflow-y: auto;
+            min-height: 0;
+        }
+
+        .day-cell {
+            aspect-ratio: 1 / 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-size: clamp(12px, 4vw, 16px);
+            border-radius: 12px;
+            cursor: pointer;
+            transition: 0.15s;
+            position: relative;
+            background: rgba(255,255,255,0.6);
+        }
+
+        .day-cell:hover {
+            background: rgba(0,122,255,0.15);
+        }
+
+        .day-number {
+            font-weight: 500;
+        }
+
+        .today {
+            background: #007aff;
+            color: white;
+        }
+
+        .today .day-number {
+            font-weight: 600;
+        }
+
+        .other-month {
+            color: #c6c6c8;
+            background: rgba(255,255,255,0.3);
+        }
+
+        .event-dot {
+            width: 6px;
+            height: 6px;
+            background: #ff3b30;
+            border-radius: 50%;
+            margin-top: 4px;
+        }
+
+        .footer {
+            padding: 12px 20px;
+            border-top: 1px solid rgba(0,0,0,0.05);
+            font-size: 12px;
+            color: #8e8e93;
+            text-align: center;
+            background: rgba(255,255,255,0.5);
+            flex-shrink: 0;
+        }
+
+        .calendar-days::-webkit-scrollbar {
+            width: 6px;
+        }
+        .calendar-days::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .calendar-days::-webkit-scrollbar-thumb {
+            background: rgba(0,0,0,0.2);
+            border-radius: 3px;
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+<div class="calendar-card">
+    <div class="calendar-header">
+        <div class="month-year" id="monthYearDisplay">2025年1月</div>
+        <div class="nav-buttons">
+            <button class="nav-btn" id="prevMonth"><i class="fas fa-chevron-left"></i></button>
+            <button class="nav-btn" id="nextMonth"><i class="fas fa-chevron-right"></i></button>
+        </div>
+    </div>
+    <div class="weekdays">
+        <span>日</span><span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span>六</span>
+    </div>
+    <div class="calendar-days" id="calendarDays"></div>
+    <div class="footer">
+        <i class="fas fa-calendar-alt"></i> 点击日期添加事件
+    </div>
+</div>
+
+<script>
+    let currentDate = new Date();
+
+    function renderCalendar() {
+        const year = currentDate.getFullYear();
+        const month = currentDate.getMonth();
+        const firstDay = new Date(year, month, 1).getDay();
+        const daysInMonth = new Date(year, month + 1, 0).getDate();
+        const prevMonthDays = new Date(year, month, 0).getDate();
+        const today = new Date();
+        
+        const daysArray = [];
+        for (let i = firstDay - 1; i >= 0; i--) {
+            daysArray.push({ day: prevMonthDays - i, currentMonth: false, date: new Date(year, month-1, prevMonthDays - i) });
+        }
+        for (let d = 1; d <= daysInMonth; d++) {
+            daysArray.push({ day: d, currentMonth: true, date: new Date(year, month, d) });
+        }
+        const remaining = 42 - daysArray.length;
+        for (let i = 1; i <= remaining; i++) {
+            daysArray.push({ day: i, currentMonth: false, date: new Date(year, month+1, i) });
+        }
+
+        const container = document.getElementById('calendarDays');
+        container.innerHTML = daysArray.map(day => {
+            const isToday = day.currentMonth && 
+                day.date.getDate() === today.getDate() &&
+                day.date.getMonth() === today.getMonth() &&
+                day.date.getFullYear() === today.getFullYear();
+            let classes = 'day-cell';
+            if (!day.currentMonth) classes += ' other-month';
+            if (isToday) classes += ' today';
+            const hasEvent = (day.day === 15 && day.currentMonth);
+            return `
+                <div class="${classes}" data-date="${day.date.toISOString()}">
+                    <div class="day-number">${day.day}</div>
+                    ${hasEvent ? '<div class="event-dot"></div>' : ''}
+                </div>
+            `;
+        }).join('');
+
+        document.getElementById('monthYearDisplay').innerText = `${year}年 ${month+1}月`;
+    }
+
+    document.getElementById('prevMonth').addEventListener('click', () => {
+        currentDate.setMonth(currentDate.getMonth() - 1);
+        renderCalendar();
+    });
+    document.getElementById('nextMonth').addEventListener('click', () => {
+        currentDate.setMonth(currentDate.getMonth() + 1);
+        renderCalendar();
+    });
+
+    document.addEventListener('click', (e) => {
+        const cell = e.target.closest('.day-cell');
+        if (cell && cell.dataset.date) {
+            alert(`点击日期: ${new Date(cell.dataset.date).toLocaleDateString()}\n添加日程，未实现。`);
+        }
+    });
+
+    window.addEventListener('message', (e) => {
+        if (e.data.type === 'resize') {
+            // 可选：重新渲染或调整
+        }
+    });
+
+    renderCalendar();
+</script>
+</body>
+</html>

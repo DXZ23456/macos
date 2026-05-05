@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>访达</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background: rgba(245, 245, 247, 0.95);
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* 工具栏 */
+        .finder-toolbar {
+            height: 48px;
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+            display: flex;
+            align-items: center;
+            padding: 0 16px;
+            gap: 16px;
+        }
+
+        .toolbar-button {
+            background: rgba(0, 0, 0, 0.05);
+            border: none;
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+            color: #1c1c1e;
+        }
+
+        .toolbar-button:hover {
+            background: rgba(0, 0, 0, 0.12);
+        }
+
+        .toolbar-button:active {
+            background: rgba(0, 0, 0, 0.2);
+        }
+
+        .path-bar {
+            flex: 1;
+            background: rgba(0, 0, 0, 0.05);
+            border-radius: 20px;
+            padding: 6px 12px;
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #1c1c1e;
+        }
+
+        .path-item {
+            cursor: default;
+        }
+
+        .path-sep {
+            color: #8e8e93;
+            font-size: 12px;
+        }
+
+        /* 主内容区（侧边栏 + 文件列表） */
+        .finder-main {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+        }
+
+        /* 侧边栏 */
+        .sidebar {
+            width: 220px;
+            background: rgba(255, 255, 255, 0.6);
+            backdrop-filter: blur(15px);
+            border-right: 1px solid rgba(0, 0, 0, 0.1);
+            padding: 16px 0;
+            overflow-y: auto;
+        }
+
+        .sidebar-section {
+            margin-bottom: 24px;
+        }
+
+        .sidebar-title {
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            color: #8e8e93;
+            padding: 8px 16px;
+            letter-spacing: 0.5px;
+        }
+
+        .sidebar-item {
+            padding: 6px 16px;
+            margin: 2px 8px;
+            border-radius: 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 13px;
+            transition: all 0.15s;
+            color: #1c1c1e;
+        }
+
+        .sidebar-item i {
+            width: 20px;
+            font-size: 16px;
+            color: #007aff;
+        }
+
+        .sidebar-item:hover {
+            background: rgba(0, 0, 0, 0.08);
+        }
+
+        .sidebar-item.active {
+            background: rgba(0, 122, 255, 0.15);
+            font-weight: 500;
+        }
+
+        /* 文件网格区域 */
+        .content-area {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .view-options {
+            padding: 12px 16px;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+            display: flex;
+            gap: 8px;
+        }
+
+        .view-btn {
+            background: transparent;
+            border: none;
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: 0.2s;
+            color: #8e8e93;
+        }
+
+        .view-btn.active {
+            background: rgba(0, 122, 255, 0.2);
+            color: #007aff;
+        }
+
+        .file-grid {
+            flex: 1;
+            overflow-y: auto;
+            padding: 16px;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+            gap: 16px;
+            align-content: flex-start;
+        }
+
+        .file-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 12px 8px;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: 0.15s;
+            background: rgba(255, 255, 255, 0.4);
+            backdrop-filter: blur(5px);
+        }
+
+        .file-item:hover {
+            background: rgba(255, 255, 255, 0.8);
+            transform: scale(1.02);
+        }
+
+        .file-icon {
+            font-size: 48px;
+            margin-bottom: 8px;
+        }
+
+        .file-name {
+            font-size: 11px;
+            text-align: center;
+            color: #1c1c1e;
+            word-break: break-word;
+            max-width: 100%;
+        }
+
+        /* 底部状态栏 */
+        .status-bar {
+            height: 28px;
+            background: rgba(255, 255, 255, 0.5);
+            backdrop-filter: blur(10px);
+            border-top: 1px solid rgba(0, 0, 0, 0.05);
+            display: flex;
+            align-items: center;
+            padding: 0 16px;
+            font-size: 11px;
+            color: #6c6c70;
+        }
+
+        /* 滚动条 */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(0,0,0,0.2);
+            border-radius: 4px;
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="finder-toolbar">
+        <button class="toolbar-button"><i class="fas fa-chevron-left"></i></button>
+        <button class="toolbar-button"><i class="fas fa-chevron-right"></i></button>
+        <div class="path-bar">
+            <span class="path-item">Macintosh HD</span>
+            <span class="path-sep"><i class="fas fa-chevron-right"></i></span>
+            <span class="path-item">用户</span>
+            <span class="path-sep"><i class="fas fa-chevron-right"></i></span>
+            <span class="path-item" id="currentPathLabel">文稿</span>
+        </div>
+    </div>
+
+    <div class="finder-main">
+        <div class="sidebar">
+            <div class="sidebar-section">
+                <div class="sidebar-title">个人收藏</div>
+                <div class="sidebar-item active" data-path="documents">
+                    <i class="fas fa-folder-open"></i> <span>文稿</span>
+                </div>
+                <div class="sidebar-item" data-path="downloads">
+                    <i class="fas fa-download"></i> <span>下载</span>
+                </div>
+                <div class="sidebar-item" data-path="desktop">
+                    <i class="fas fa-desktop"></i> <span>桌面</span>
+                </div>
+                <div class="sidebar-item" data-path="applications">
+                    <i class="fas fa-rocket"></i> <span>应用程序</span>
+                </div>
+            </div>
+            <div class="sidebar-section">
+                <div class="sidebar-title">位置</div>
+                <div class="sidebar-item" data-path="macintosh">
+                    <i class="fas fa-hdd"></i> <span>Macintosh HD</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="content-area">
+            <div class="view-options">
+                <button class="view-btn active" data-view="icons"><i class="fas fa-th"></i></button>
+                <button class="view-btn" data-view="list"><i class="fas fa-list"></i></button>
+            </div>
+            <div class="file-grid" id="fileGrid"></div>
+            <div class="status-bar" id="statusBar">显示 0 个项目</div>
+        </div>
+    </div>
+
+    <script>
+        // 模拟文件数据库
+        const filesDB = {
+            documents: [
+                { name: "年度总结.docx", icon: "fa-file-word", color: "#2b5797" },
+                { name: "预算表.xlsx", icon: "fa-file-excel", color: "#1e7145" },
+                { name: "演示文稿.key", icon: "fa-file-powerpoint", color: "#d24726" },
+                { name: "项目计划", icon: "fa-folder", color: "#007aff" }
+            ],
+            downloads: [
+                { name: "installer.dmg", icon: "fa-hdd", color: "#8e8e93" },
+                { name: "wallpaper.jpg", icon: "fa-image", color: "#30d158" }
+            ],
+            desktop: [
+                { name: "待办事项.txt", icon: "fa-file-alt", color: "#5856d6" },
+                { name: "截图.png", icon: "fa-camera", color: "#64d2ff" }
+            ],
+            applications: [
+                { name: "Safari.app", icon: "fa-compass", color: "#007aff" },
+                { name: "日历.app", icon: "fa-calendar", color: "#ff3b30" },
+                { name: "照片.app", icon: "fa-images", color: "#30d158" },
+                { name: "设置.app", icon: "fa-cog", color: "#8e8e93" }
+            ],
+            macintosh: [
+                { name: "系统", icon: "fa-microchip", color: "#5856d6" },
+                { name: "用户", icon: "fa-user", color: "#ff9f0a" },
+                { name: "应用程序", icon: "fa-rocket", color: "#007aff" }
+            ]
+        };
+
+        let currentPath = "documents";
+        let currentView = "icons";
+
+        function renderFiles() {
+            const files = filesDB[currentPath] || [];
+            const grid = document.getElementById('fileGrid');
+            const statusBar = document.getElementById('statusBar');
+            const pathLabel = document.getElementById('currentPathLabel');
+            
+            pathLabel.innerText = currentPath === 'documents' ? '文稿' :
+                                  currentPath === 'downloads' ? '下载' :
+                                  currentPath === 'desktop' ? '桌面' :
+                                  currentPath === 'applications' ? '应用程序' : 'Macintosh HD';
+            
+            if (currentView === 'icons') {
+                grid.style.display = 'grid';
+                grid.innerHTML = files.map(file => `
+                    <div class="file-item" data-name="${file.name}">
+                        <div class="file-icon"><i class="fas ${file.icon}" style="color: ${file.color}; font-size: 48px;"></i></div>
+                        <div class="file-name">${file.name}</div>
+                    </div>
+                `).join('');
+            } else {
+                // 列表视图简化
+                grid.style.display = 'block';
+                grid.innerHTML = `<div style="display: flex; flex-direction: column; gap: 8px;">` + 
+                    files.map(file => `<div style="display: flex; align-items: center; gap: 12px; padding: 8px; border-bottom: 1px solid rgba(0,0,0,0.05);">
+                        <i class="fas ${file.icon}" style="width: 24px; color: ${file.color};"></i>
+                        <span>${file.name}</span>
+                    </div>`).join('') + `</div>`;
+            }
+            statusBar.innerText = `显示 ${files.length} 个项目`;
+        }
+
+        // 侧边栏切换
+        document.querySelectorAll('.sidebar-item').forEach(item => {
+            item.addEventListener('click', () => {
+                document.querySelectorAll('.sidebar-item').forEach(i => i.classList.remove('active'));
+                item.classList.add('active');
+                currentPath = item.getAttribute('data-path');
+                renderFiles();
+            });
+        });
+
+        // 视图切换
+        document.querySelectorAll('.view-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.view-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                currentView = btn.getAttribute('data-view');
+                renderFiles();
+            });
+        });
+
+        // 监听父窗口 resize 消息
+        window.addEventListener('message', (e) => {
+            if (e.data.type === 'resize') {
+                // 可做响应式调整
+                console.log('Finder resized', e.data.width, e.data.height);
+            }
+        });
+
+        renderFiles();
+    </script>
+</body>
+</html>

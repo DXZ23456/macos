@@ -1,0 +1,1572 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>新标签页</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            height: 100vh;
+            overflow: hidden;
+            background: #000;
+            color: white;
+            user-select: none;
+        }
+
+        /* 背景图片 */
+        .background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url('https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=2072&auto=format&fit=crop');
+            background-size: cover;
+            background-position: center;
+            z-index: -2;
+            transition: transform 0.3s ease;
+        }
+
+        .background-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(to bottom, rgba(0,0,0,0.2) 0%, rgba(0,0,0,0.1) 50%, rgba(0,0,0,0.4) 100%);
+            z-index: -1;
+        }
+
+        /* 顶部工具栏 */
+        .top-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            padding: 12px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(0, 0, 0, 0.2);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            z-index: 100;
+        }
+
+        .tab-container {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex: 1;
+        }
+
+        .tab {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            max-width: 200px;
+            overflow: hidden;
+        }
+
+        .tab:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .tab.active {
+            background: rgba(255, 255, 255, 0.25);
+        }
+
+        .tab-icon {
+            width: 16px;
+            height: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .tab-icon svg {
+            width: 14px;
+            height: 14px;
+        }
+
+        .tab-title {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .tab-close {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: all 0.2s;
+            flex-shrink: 0;
+            margin-left: 4px;
+        }
+
+        .tab:hover .tab-close {
+            opacity: 1;
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .new-tab-btn {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 20px;
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .new-tab-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+        }
+
+        .top-actions {
+            display: flex;
+            gap: 16px;
+            align-items: center;
+        }
+
+        .top-btn {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            color: rgba(255, 255, 255, 0.8);
+            position: relative;
+        }
+
+        .top-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+        }
+
+        .top-btn svg {
+            width: 20px;
+            height: 20px;
+        }
+
+        /* 主内容区 */
+        .main-content {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 80px 20px 40px;
+            transition: all 0.5s ease;
+        }
+
+        .main-content.browser-mode {
+            padding: 60px 0 0;
+            justify-content: flex-start;
+        }
+
+        /* 主页视图（时钟+搜索） */
+        .home-view {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            transition: all 0.5s ease;
+        }
+
+        .home-view.hidden {
+            opacity: 0;
+            pointer-events: none;
+            transform: translateY(-20px);
+            display: none;
+        }
+
+        /* 时钟 */
+        .clock-container {
+            text-align: center;
+            margin-bottom: 60px;
+            animation: fadeInUp 0.8s ease;
+            cursor: pointer;
+            transition: transform 0.3s;
+        }
+
+        .clock-container:hover {
+            transform: scale(1.02);
+        }
+
+        .clock {
+            font-size: clamp(80px, 15vw, 140px);
+            font-weight: 300;
+            letter-spacing: -4px;
+            line-height: 1;
+            text-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
+            font-variant-numeric: tabular-nums;
+        }
+
+        .date {
+            font-size: 20px;
+            color: rgba(255, 255, 255, 0.8);
+            margin-top: 12px;
+            font-weight: 400;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        /* 搜索框 */
+        .search-container {
+            width: 100%;
+            max-width: 680px;
+            position: relative;
+            animation: fadeInUp 0.8s ease 0.1s both;
+        }
+
+        .search-box {
+            width: 100%;
+            height: 64px;
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-radius: 32px;
+            display: flex;
+            align-items: center;
+            padding: 0 28px;
+            gap: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s;
+            cursor: text;
+        }
+
+        .search-box:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+            box-shadow: 0 12px 48px rgba(0, 0, 0, 0.4);
+        }
+
+        .search-box:focus-within {
+            background: rgba(255, 255, 255, 0.25);
+            border-color: rgba(255, 255, 255, 0.4);
+            box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.1), 0 12px 48px rgba(0, 0, 0, 0.4);
+        }
+
+        .search-icon {
+            color: rgba(255, 255, 255, 0.8);
+            flex-shrink: 0;
+        }
+
+        .search-input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            outline: none;
+            color: white;
+            font-size: 18px;
+            font-family: inherit;
+        }
+
+        .search-input::placeholder {
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .search-engine-selector {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 14px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+            position: relative;
+            font-weight: 500;
+        }
+
+        .search-engine-selector:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .engine-dropdown {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            margin-top: 8px;
+            background: rgba(30, 30, 30, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 16px;
+            padding: 8px;
+            min-width: 160px;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-10px);
+            transition: all 0.3s;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+        }
+
+        .engine-dropdown.show {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        .engine-option {
+            padding: 12px;
+            border-radius: 10px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+
+        .engine-option:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .engine-option.active {
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .engine-icon {
+            width: 16px;
+            height: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .engine-icon svg {
+            width: 14px;
+            height: 14px;
+        }
+
+        /* 历史记录下拉 */
+        .history-dropdown {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            margin-top: 12px;
+            background: rgba(30, 30, 30, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 12px;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-10px);
+            transition: all 0.3s;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            max-height: 400px;
+            overflow-y: auto;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+        }
+
+        .history-dropdown.show {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        .history-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .history-item:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .history-icon {
+            width: 36px;
+            height: 36px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .history-icon svg {
+            width: 18px;
+            height: 18px;
+        }
+
+        .history-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .history-title {
+            font-size: 14px;
+            font-weight: 500;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .history-url {
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.5);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            margin-top: 2px;
+        }
+
+        /* 浏览器视图 */
+        .browser-view {
+            width: 100%;
+            height: calc(100vh - 60px);
+            display: none;
+            flex-direction: column;
+            background: rgba(0, 0, 0, 0.8);
+            animation: fadeIn 0.4s ease;
+        }
+
+        .browser-view.active {
+            display: flex;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        /* 浏览器工具栏 */
+        .browser-toolbar {
+            display: flex;
+            align-items: center;
+            padding: 12px 20px;
+            gap: 12px;
+            background: rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .browser-nav-btn {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            color: rgba(255, 255, 255, 0.8);
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .browser-nav-btn:hover:not(:disabled) {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+        }
+
+        .browser-nav-btn:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+
+        .browser-address-bar {
+            flex: 1;
+            height: 40px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            padding: 0 16px;
+            gap: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .browser-address-bar input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            outline: none;
+            color: white;
+            font-size: 14px;
+        }
+
+        .browser-address-bar .security-icon {
+            color: #4ade80;
+        }
+
+        .home-btn {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            color: rgba(255, 255, 255, 0.8);
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .home-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+        }
+
+        /* iframe 容器 */
+        .browser-frame-container {
+            flex: 1;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .browser-iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+            background: white;
+        }
+
+        /* 设置面板 */
+        .settings-panel {
+            position: fixed;
+            top: 70px;
+            right: 20px;
+            width: 340px;
+            max-height: calc(100vh - 100px);
+            overflow-y: auto;
+            background: rgba(30, 30, 30, 0.95);
+            backdrop-filter: blur(30px);
+            -webkit-backdrop-filter: blur(30px);
+            border-radius: 24px;
+            padding: 24px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-20px) scale(0.95);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 200;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+        }
+
+        .settings-panel.show {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0) scale(1);
+        }
+
+        .settings-header {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 24px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .setting-item {
+            margin-bottom: 24px;
+        }
+
+        .setting-label {
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.7);
+            margin-bottom: 12px;
+            display: block;
+            font-weight: 500;
+        }
+
+        .bg-options {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 10px;
+        }
+
+        .bg-option {
+            aspect-ratio: 16/10;
+            border-radius: 12px;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: all 0.3s;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .bg-option img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .bg-option:hover {
+            transform: scale(1.05);
+        }
+
+        .bg-option.active {
+            border-color: #4ade80;
+        }
+
+        .toggle-switch {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 14px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 14px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .toggle-switch:hover {
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        .toggle {
+            width: 50px;
+            height: 28px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 14px;
+            position: relative;
+            transition: all 0.3s;
+        }
+
+        .toggle::after {
+            content: '';
+            position: absolute;
+            top: 3px;
+            left: 3px;
+            width: 22px;
+            height: 22px;
+            background: white;
+            border-radius: 50%;
+            transition: all 0.3s;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .toggle.active {
+            background: #4ade80;
+        }
+
+        .toggle.active::after {
+            left: 25px;
+        }
+
+        /* 更新日志样式 */
+        .version-info {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 14px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 14px;
+            margin-bottom: 8px;
+        }
+
+        .version-badge {
+            font-size: 13px;
+            font-weight: 600;
+            color: #4ade80;
+            background: rgba(74, 222, 128, 0.15);
+            padding: 4px 10px;
+            border-radius: 20px;
+        }
+
+        .changelog-toggle {
+            font-size: 13px;
+            color: rgba(255, 255, 255, 0.6);
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .changelog-toggle:hover {
+            color: white;
+        }
+
+        .changelog-toggle svg {
+            width: 14px;
+            height: 14px;
+            transition: transform 0.3s;
+        }
+
+        .changelog-toggle.expanded svg {
+            transform: rotate(180deg);
+        }
+
+        .changelog-content {
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 14px;
+            max-height: 0;
+            opacity: 0;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            /* 修复：移除 overflow:hidden，避免内容被截断 */
+        }
+
+        .changelog-content.show {
+            max-height: none;  /* 修复：改为 none，让内容完全展开 */
+            opacity: 1;
+            margin-top: 8px;
+        }
+
+        .changelog-list {
+            padding: 16px;
+        }
+
+        .changelog-item {
+            padding-left: 16px;
+            border-left: 2px solid rgba(74, 222, 128, 0.3);
+            margin-bottom: 16px;
+            position: relative;
+        }
+
+        .changelog-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .changelog-version {
+            font-size: 13px;
+            font-weight: 600;
+            color: #4ade80;
+            margin-bottom: 6px;
+        }
+
+        .changelog-date {
+            font-size: 11px;
+            color: rgba(255, 255, 255, 0.4);
+            margin-bottom: 8px;
+        }
+
+        .changelog-desc {
+            font-size: 13px;
+            color: rgba(255, 255, 255, 0.7);
+            line-height: 1.6;
+        }
+
+        .changelog-desc li {
+            margin-bottom: 4px;
+            list-style: none;
+            position: relative;
+            padding-left: 12px;
+        }
+
+        .changelog-desc li::before {
+            content: '•';
+            position: absolute;
+            left: 0;
+            color: rgba(74, 222, 128, 0.6);
+        }
+
+        /* 动画 */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* 滚动条美化 */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        /* 响应式 */
+        @media (max-width: 768px) {
+            .top-bar {
+                padding: 10px 12px;
+            }
+
+            .tab-title {
+                max-width: 80px;
+            }
+
+            .clock {
+                font-size: 64px;
+                letter-spacing: -2px;
+            }
+
+            .date {
+                font-size: 16px;
+            }
+
+            .search-box {
+                height: 56px;
+            }
+
+            .search-input {
+                font-size: 16px;
+            }
+
+            .browser-toolbar {
+                padding: 8px 12px;
+            }
+
+            .browser-address-bar {
+                height: 36px;
+            }
+
+            .settings-panel {
+                width: calc(100vw - 40px);
+                right: 20px;
+            }
+        }
+
+        /* 全屏时钟模式 */
+        .fullscreen-clock .clock {
+            font-size: 22vw;
+        }
+
+        .fullscreen-clock .date,
+        .fullscreen-clock .search-container {
+            opacity: 0;
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body>
+    <!-- 背景 -->
+    <div class="background" id="bg"></div>
+    <div class="background-overlay"></div>
+
+    <!-- 顶部栏 -->
+    <div class="top-bar">
+        <div class="tab-container" id="tabContainer">
+            <div class="tab active" data-tab-id="0" onclick="switchTab(this)">
+                <div class="tab-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+                </div>
+                <span class="tab-title">新标签页</span>
+                <div class="tab-close" onclick="closeTab(event)">×</div>
+            </div>
+            <div class="new-tab-btn" onclick="newTab()">+</div>
+        </div>
+        
+        <div class="top-actions">
+            <div class="top-btn" onclick="toggleSettings()" title="设置">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                </svg>
+            </div>
+            <div class="top-btn" onclick="toggleFullscreen()" title="全屏">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"></path>
+                </svg>
+            </div>
+            <div class="top-btn" style="background: rgba(255,255,255,0.1);" title="用户">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                </svg>
+            </div>
+        </div>
+    </div>
+
+    <!-- 主内容 -->
+    <div class="main-content" id="mainContent">
+        <!-- 主页视图 -->
+        <div class="home-view" id="homeView">
+            <div class="clock-container" onclick="toggleFullscreenClock()" title="点击切换全屏时钟">
+                <div class="clock" id="clock">18:33</div>
+                <div class="date" id="date">3月13日 星期四</div>
+            </div>
+
+            <!-- 中间搜索框 -->
+            <div class="search-container">
+                <div class="search-box" onclick="document.getElementById('centerSearchInput').focus()">
+                    <svg class="search-icon" width="22" height="22" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                    </svg>
+                    <input type="text" class="search-input" id="centerSearchInput" placeholder="搜索网页或输入网址..." autocomplete="off" spellcheck="false">
+                    <div class="search-engine-selector" onclick="toggleEngine(event)">
+                        <span id="currentEngine">Google</span>
+                        <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                        </svg>
+                        
+                        <div class="engine-dropdown" id="engineDropdown">
+                            <div class="engine-option active" onclick="selectEngine('Google')">
+                                <div class="engine-icon">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                                </div>
+                                Google
+                            </div>
+                            <div class="engine-option" onclick="selectEngine('Bing')">
+                                <div class="engine-icon">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                                </div>
+                                Bing
+                            </div>
+                            <div class="engine-option" onclick="selectEngine('百度')">
+                                <div class="engine-icon">
+                                    <svg viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                                </div>
+                                百度
+                            </div>
+                            <div class="engine-option" onclick="selectEngine('DuckDuckGo')">
+                                <div class="engine-icon">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12c0-4-3-7-7-7s-7 3-7 7 3 7 7 7c1 0 2-.2 3-.5"/><path d="M16 14l4 2v-4l-4 2z"/><circle cx="10" cy="11" r="1.5" fill="currentColor" stroke="none"/></svg>
+                                </div>
+                                DuckDuckGo
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 搜索历史下拉 -->
+                <div class="history-dropdown" id="historyDropdown"></div>
+            </div>
+        </div>
+
+        <!-- 浏览器视图 -->
+        <div class="browser-view" id="browserView">
+            <div class="browser-toolbar">
+                <button class="browser-nav-btn" id="backBtn" onclick="goBack()" title="后退">
+                    <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+                    </svg>
+                </button>
+                <button class="browser-nav-btn" id="forwardBtn" onclick="goForward()" title="前进">
+                    <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                    </svg>
+                </button>
+                <button class="browser-nav-btn" onclick="reloadPage()" title="刷新">
+                    <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                    </svg>
+                </button>
+                
+                <div class="browser-address-bar">
+                    <svg class="security-icon" width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+                    </svg>
+                    <input type="text" id="browserAddressInput" placeholder="输入网址或搜索..." onkeypress="handleAddressBarKey(event)">
+                </div>
+                
+                <button class="home-btn" onclick="goHome()" title="返回主页">
+                    <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path>
+                    </svg>
+                </button>
+            </div>
+            
+            <div class="browser-frame-container">
+                <iframe class="browser-iframe" id="browserFrame" sandbox="allow-scripts allow-same-origin allow-popups allow-forms allow-top-navigation"></iframe>
+            </div>
+        </div>
+    </div>
+
+    <!-- 设置面板 -->
+    <div class="settings-panel" id="settingsPanel">
+        <div class="settings-header">设置</div>
+        
+        <div class="setting-item">
+            <label class="setting-label">背景图片</label>
+            <div class="bg-options">
+                <div class="bg-option active" onclick="changeBg(0, this)">
+                    <img src="https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=400&auto=format&fit=crop" alt="太空">
+                </div>
+                <div class="bg-option" onclick="changeBg(1, this)">
+                    <img src="https://images.unsplash.com/photo-1477346611705-65d1883cee1e?q=80&w=400&auto=format&fit=crop" alt="山脉">
+                </div>
+                <div class="bg-option" onclick="changeBg(2, this)">
+                    <img src="https://images.unsplash.com/photo-1507400492013-162706c8c05e?q=80&w=400&auto=format&fit=crop" alt="星空">
+                </div>
+                <div class="bg-option" onclick="changeBg(3, this)">
+                    <img src="https://images.unsplash.com/photo-1506905925346-21bda4d32df4?q=80&w=400&auto=format&fit=crop" alt="自然">
+                </div>
+                <div class="bg-option" onclick="changeBg(4, this)">
+                    <img src="https://www.minecraft.net/content/dam/minecraftnet/games/minecraft/screenshots/CREATE_BuildAlmostAnything.png" alt="Minecraft">
+                </div>
+            </div>
+        </div>
+
+        <div class="setting-item">
+            <label class="setting-label">显示秒数</label>
+            <div class="toggle-switch" onclick="toggleSeconds()">
+                <span>在时钟上显示秒数</span>
+                <div class="toggle" id="secondsToggle"></div>
+            </div>
+        </div>
+
+        <div class="setting-item">
+            <label class="setting-label">24小时制</label>
+            <div class="toggle-switch" onclick="toggle24Hour()">
+                <span>使用24小时制</span>
+                <div class="toggle active" id="formatToggle"></div>
+            </div>
+        </div>
+
+        <!-- 更新日志 -->
+        <div class="setting-item">
+            <label class="setting-label">关于</label>
+            <div class="version-info">
+                <span style="font-size: 14px; color: rgba(255,255,255,0.8);">当前版本</span>
+                <span class="version-badge">V3</span>
+            </div>
+            <div class="changelog-toggle" id="changelogToggle" onclick="toggleChangelog()">
+                <span>查看更新日志</span>
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                </svg>
+            </div>
+            <div class="changelog-content" id="changelogContent">
+                <div class="changelog-list" id="changelogList"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 状态变量
+        let currentEngine = 'Google';
+        let showSeconds = false;
+        let is24Hour = true;
+        let searchHistory = [];
+        let tabs = [{ id: 0, url: null, title: '新标签页', history: [], historyIndex: -1 }];
+        let currentTabId = 0;
+        let tabCounter = 1;
+        
+        // SVG 图标常量
+        const ICONS = {
+            globe: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>',
+            search: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>',
+            star: '<svg viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>',
+            duck: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12c0-4-3-7-7-7s-7 3-7 7 3 7 7 7c1 0 2-.2 3-.5"/><path d="M16 14l4 2v-4l-4 2z"/><circle cx="10" cy="11" r="1.5" fill="currentColor" stroke="none"/></svg>',
+            clock: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>'
+        };
+        
+        const backgrounds = [
+            'https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=2072&auto=format&fit=crop',
+            'https://images.unsplash.com/photo-1477346611705-65d1883cee1e?q=80&w=2072&auto=format&fit=crop',
+            'https://images.unsplash.com/photo-1507400492013-162706c8c05e?q=80&w=2072&auto=format&fit=crop',
+            'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?q=80&w=2072&auto=format&fit=crop',
+            'https://www.minecraft.net/content/dam/minecraftnet/games/minecraft/screenshots/CREATE_BuildAlmostAnything.png'
+        ];
+
+        const searchEngines = {
+            'Google': 'https://www.google.com/search?q=',
+            'Bing': 'https://www.bing.com/search?q=',
+            '百度': 'https://www.baidu.com/s?wd=',
+            'DuckDuckGo': 'https://duckduckgo.com/?q='
+        };
+
+        // 更新日志数据
+        const changelogData = [
+            {
+                version: 'V3',
+                date: '2026-04-30',
+                changes: [
+                    '新增 Minecraft 主题背景图片',
+                    '所有 Emoji 图标替换为 SVG 矢量图标',
+                    '版本号升级至 V3'
+                ]
+            },
+            {
+                version: 'V2',
+                date: '2026-04-30',
+                changes: [
+                    '新增嵌入式浏览器功能，支持在标签页内直接浏览网页',
+                    '中间搜索栏支持智能识别：输入网址直接访问，输入关键词则搜索',
+                    '标签页系统升级，每个标签页独立维护浏览历史（前进/后退）',
+                    '新增浏览器工具栏，包含地址栏、刷新、主页等功能',
+                    '移除顶部地址栏，界面更加简洁统一'
+                ]
+            },
+            {
+                version: 'V1',
+                date: '2026-03-13',
+                changes: [
+                    '初始版本发布',
+                    '支持动态背景切换与毛玻璃效果',
+                    '实时时钟显示，支持12/24小时制切换',
+                    '多搜索引擎切换（Google、Bing、百度、DuckDuckGo）',
+                    '搜索历史记录与快捷访问',
+                    '标签页管理与全屏时钟模式'
+                ]
+            }
+        ];
+
+        // 时钟更新
+        function updateClock() {
+            const now = new Date();
+            let hours = now.getHours();
+            const minutes = now.getMinutes().toString().padStart(2, '0');
+            const seconds = now.getSeconds().toString().padStart(2, '0');
+            
+            if (!is24Hour) {
+                hours = hours % 12 || 12;
+            }
+            hours = hours.toString().padStart(2, '0');
+            
+            let timeStr = `${hours}:${minutes}`;
+            if (showSeconds) timeStr += `:${seconds}`;
+            
+            document.getElementById('clock').textContent = timeStr;
+            
+            const days = ['星期日', '星期一', '星期二', '星期三', '星期四', '星期五', '星期六'];
+            const months = ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月'];
+            document.getElementById('date').textContent = `${months[now.getMonth()]}${now.getDate()}日 ${days[now.getDay()]}`;
+        }
+
+        setInterval(updateClock, 1000);
+        updateClock();
+
+        // ==================== 搜索功能 ====================
+        
+        const centerSearchInput = document.getElementById('centerSearchInput');
+        const browserAddressInput = document.getElementById('browserAddressInput');
+        const historyDropdown = document.getElementById('historyDropdown');
+        
+        // 判断是否为URL
+        function isURL(str) {
+            const urlPattern = /^(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)*\/?$/;
+            return urlPattern.test(str) || str.includes('.') && !str.includes(' ') && !str.includes('。');
+        }
+
+        // 中间搜索栏输入处理
+        centerSearchInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                const input = this.value.trim();
+                if (input) {
+                    performSearchOrNavigate(input);
+                }
+            }
+        });
+
+        centerSearchInput.addEventListener('focus', function() {
+            showSearchHistory();
+        });
+
+        centerSearchInput.addEventListener('blur', function() {
+            setTimeout(() => hideSearchHistory(), 200);
+        });
+
+        // 执行搜索或导航
+        function performSearchOrNavigate(input) {
+            addSearchHistory(input);
+            
+            let url;
+            if (isURL(input)) {
+                url = input.startsWith('http') ? input : 'https://' + input;
+            } else {
+                url = searchEngines[currentEngine] + encodeURIComponent(input);
+            }
+            
+            navigateTo(url, input);
+        }
+
+        // 导航到URL
+        function navigateTo(url, title) {
+            const tab = tabs.find(t => t.id === currentTabId);
+            if (tab) {
+                // 更新历史记录
+                if (tab.historyIndex < tab.history.length - 1) {
+                    tab.history = tab.history.slice(0, tab.historyIndex + 1);
+                }
+                tab.history.push(url);
+                tab.historyIndex++;
+                tab.url = url;
+                tab.title = title || url;
+                
+                updateTabUI(tab);
+            }
+            
+            // 切换到浏览器视图
+            showBrowserView();
+            
+            // 加载iframe
+            const frame = document.getElementById('browserFrame');
+            frame.src = url;
+            browserAddressInput.value = url;
+            
+            updateNavButtons();
+        }
+
+        // 显示浏览器视图
+        function showBrowserView() {
+            document.getElementById('homeView').classList.add('hidden');
+            document.getElementById('browserView').classList.add('active');
+            document.getElementById('mainContent').classList.add('browser-mode');
+        }
+
+        // 返回主页
+        function goHome() {
+            document.getElementById('homeView').classList.remove('hidden');
+            document.getElementById('browserView').classList.remove('active');
+            document.getElementById('mainContent').classList.remove('browser-mode');
+            centerSearchInput.value = '';
+            document.getElementById('browserFrame').src = 'about:blank';
+        }
+
+        // 地址栏输入处理
+        function handleAddressBarKey(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                const input = e.target.value.trim();
+                if (input) {
+                    performSearchOrNavigate(input);
+                }
+            }
+        }
+
+        // 添加搜索历史
+        function addSearchHistory(query) {
+            searchHistory = searchHistory.filter(q => q !== query);
+            searchHistory.unshift(query);
+            if (searchHistory.length > 8) searchHistory.pop();
+            localStorage.setItem('searchHistory', JSON.stringify(searchHistory));
+        }
+
+        // 显示搜索历史
+        function showSearchHistory() {
+            const saved = localStorage.getItem('searchHistory');
+            if (saved) searchHistory = JSON.parse(saved);
+            
+            if (searchHistory.length > 0) {
+                historyDropdown.innerHTML = searchHistory.map(q => `
+                    <div class="history-item" onclick="performSearchFromHistory('${q}')">
+                        <div class="history-icon">${ICONS.clock}</div>
+                        <div class="history-info">
+                            <div class="history-title">${q}</div>
+                            <div class="history-url">${isURL(q) ? '直接访问' : '搜索历史'}</div>
+                        </div>
+                    </div>
+                `).join('');
+                historyDropdown.classList.add('show');
+            }
+        }
+
+        function hideSearchHistory() {
+            historyDropdown.classList.remove('show');
+        }
+
+        function performSearchFromHistory(query) {
+            centerSearchInput.value = query;
+            performSearchOrNavigate(query);
+        }
+
+        // ==================== 浏览器导航 ====================
+        
+        function goBack() {
+            const tab = tabs.find(t => t.id === currentTabId);
+            if (tab && tab.historyIndex > 0) {
+                tab.historyIndex--;
+                const url = tab.history[tab.historyIndex];
+                document.getElementById('browserFrame').src = url;
+                browserAddressInput.value = url;
+                tab.url = url;
+                updateTabUI(tab);
+                updateNavButtons();
+            }
+        }
+
+        function goForward() {
+            const tab = tabs.find(t => t.id === currentTabId);
+            if (tab && tab.historyIndex < tab.history.length - 1) {
+                tab.historyIndex++;
+                const url = tab.history[tab.historyIndex];
+                document.getElementById('browserFrame').src = url;
+                browserAddressInput.value = url;
+                tab.url = url;
+                updateTabUI(tab);
+                updateNavButtons();
+            }
+        }
+
+        function reloadPage() {
+            const frame = document.getElementById('browserFrame');
+            frame.src = frame.src;
+        }
+
+        function updateNavButtons() {
+            const tab = tabs.find(t => t.id === currentTabId);
+            if (tab) {
+                document.getElementById('backBtn').disabled = tab.historyIndex <= 0;
+                document.getElementById('forwardBtn').disabled = tab.historyIndex >= tab.history.length - 1;
+            }
+        }
+
+        // ==================== 标签页管理 ====================
+        
+        function newTab() {
+            const newTabId = tabCounter++;
+            const newTab = { 
+                id: newTabId, 
+                url: null, 
+                title: '新标签页', 
+                history: [], 
+                historyIndex: -1 
+            };
+            tabs.push(newTab);
+            
+            const tabEl = document.createElement('div');
+            tabEl.className = 'tab';
+            tabEl.setAttribute('data-tab-id', newTabId);
+            tabEl.onclick = function() { switchTab(this); };
+            tabEl.innerHTML = `
+                <div class="tab-icon">${ICONS.globe}</div>
+                <span class="tab-title">新标签页</span>
+                <div class="tab-close" onclick="closeTab(event)">×</div>
+            `;
+            
+            document.querySelector('.new-tab-btn').before(tabEl);
+            switchTab(tabEl);
+        }
+
+        function switchTab(tabEl) {
+            const tabId = parseInt(tabEl.getAttribute('data-tab-id'));
+            currentTabId = tabId;
+            
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            tabEl.classList.add('active');
+            
+            const tab = tabs.find(t => t.id === tabId);
+            if (tab) {
+                if (tab.url) {
+                    document.getElementById('browserFrame').src = tab.url;
+                    browserAddressInput.value = tab.url;
+                    showBrowserView();
+                } else {
+                    goHome();
+                }
+                updateNavButtons();
+            }
+        }
+
+        function closeTab(e) {
+            e.stopPropagation();
+            const tabEl = e.target.closest('.tab');
+            const tabId = parseInt(tabEl.getAttribute('data-tab-id'));
+            
+            if (document.querySelectorAll('.tab').length > 1) {
+                tabs = tabs.filter(t => t.id !== tabId);
+                tabEl.remove();
+                
+                if (tabId === currentTabId) {
+                    const remainingTab = document.querySelector('.tab');
+                    if (remainingTab) {
+                        switchTab(remainingTab);
+                    }
+                }
+            }
+        }
+
+        function updateTabUI(tab) {
+            const tabEl = document.querySelector(`[data-tab-id="${tab.id}"]`);
+            if (tabEl) {
+                const titleEl = tabEl.querySelector('.tab-title');
+                titleEl.textContent = tab.title.length > 15 ? tab.title.substring(0, 15) + '...' : tab.title;
+                
+                // 如果正在浏览网页，添加浏览标识
+                if (tab.url) {
+                    tabEl.querySelector('.tab-icon').innerHTML = ICONS.globe;
+                }
+            }
+        }
+
+        // ==================== 搜索引擎切换 ====================
+        
+        function toggleEngine(e) {
+            e.stopPropagation();
+            document.getElementById('engineDropdown').classList.toggle('show');
+        }
+
+        function selectEngine(engine) {
+            currentEngine = engine;
+            document.getElementById('currentEngine').textContent = engine;
+            document.querySelectorAll('.engine-option').forEach(opt => {
+                opt.classList.toggle('active', opt.textContent.includes(engine));
+            });
+            document.getElementById('engineDropdown').classList.remove('show');
+        }
+
+        // ==================== 设置功能 ====================
+        
+        function toggleSettings() {
+            document.getElementById('settingsPanel').classList.toggle('show');
+        }
+
+        function changeBg(index, el) {
+            document.getElementById('bg').style.backgroundImage = `url(${backgrounds[index]})`;
+            document.querySelectorAll('.bg-option').forEach(opt => opt.classList.remove('active'));
+            el.classList.add('active');
+            localStorage.setItem('bgIndex', index);
+        }
+
+        function toggleSeconds() {
+            showSeconds = !showSeconds;
+            document.getElementById('secondsToggle').classList.toggle('active');
+            updateClock();
+            localStorage.setItem('showSeconds', showSeconds);
+        }
+
+        function toggle24Hour() {
+            is24Hour = !is24Hour;
+            document.getElementById('formatToggle').classList.toggle('active');
+            updateClock();
+            localStorage.setItem('is24Hour', is24Hour);
+        }
+
+        // ==================== 更新日志功能 ====================
+        
+        function toggleChangelog() {
+            const content = document.getElementById('changelogContent');
+            const toggle = document.getElementById('changelogToggle');
+            const isShowing = content.classList.contains('show');
+            
+            if (!isShowing) {
+                // 首次展开时渲染内容
+                if (!document.getElementById('changelogList').innerHTML) {
+                    renderChangelog();
+                }
+                content.classList.add('show');
+                toggle.classList.add('expanded');
+                toggle.querySelector('span').textContent = '收起更新日志';
+            } else {
+                content.classList.remove('show');
+                toggle.classList.remove('expanded');
+                toggle.querySelector('span').textContent = '查看更新日志';
+            }
+        }
+
+        function renderChangelog() {
+            const list = document.getElementById('changelogList');
+            list.innerHTML = changelogData.map(item => `
+                <div class="changelog-item">
+                    <div class="changelog-version">${item.version}</div>
+                    <div class="changelog-date">${item.date}</div>
+                    <ul class="changelog-desc">
+                        ${item.changes.map(change => `<li>${change}</li>`).join('')}
+                    </ul>
+                </div>
+            `).join('');
+        }
+
+        // ==================== 其他功能 ====================
+        
+        function toggleFullscreen() {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen();
+            } else {
+                document.exitFullscreen();
+            }
+        }
+
+        function toggleFullscreenClock() {
+            document.body.classList.toggle('fullscreen-clock');
+        }
+
+        // ==================== 全局事件处理 ====================
+        
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('.settings-panel') && !e.target.closest('.top-btn')) {
+                document.getElementById('settingsPanel').classList.remove('show');
+            }
+            if (!e.target.closest('.search-engine-selector')) {
+                document.getElementById('engineDropdown').classList.remove('show');
+            }
+        });
+
+        document.addEventListener('keydown', (e) => {
+            if (e.ctrlKey && e.key === 't') {
+                e.preventDefault();
+                newTab();
+            }
+            if (e.ctrlKey && e.key === 'l') {
+                e.preventDefault();
+                if (document.getElementById('browserView').classList.contains('active')) {
+                    browserAddressInput.focus();
+                    browserAddressInput.select();
+                } else {
+                    centerSearchInput.focus();
+                }
+            }
+            if (e.key === 'Escape') {
+                document.body.classList.remove('fullscreen-clock');
+            }
+        });
+
+        // iframe 加载事件
+        document.getElementById('browserFrame').addEventListener('load', function() {
+            try {
+                const url = this.contentWindow.location.href;
+                if (url && url !== 'about:blank') {
+                    browserAddressInput.value = url;
+                    const tab = tabs.find(t => t.id === currentTabId);
+                    if (tab) {
+                        tab.url = url;
+                        updateTabUI(tab);
+                    }
+                }
+            } catch (e) {
+                // 跨域访问限制，忽略
+            }
+        });
+
+        // ==================== 初始化 ====================
+        
+        window.onload = () => {
+            const bgIndex = localStorage.getItem('bgIndex') || 0;
+            if (bgIndex > 0) {
+                document.getElementById('bg').style.backgroundImage = `url(${backgrounds[bgIndex]})`;
+                document.querySelectorAll('.bg-option')[bgIndex].classList.add('active');
+                document.querySelectorAll('.bg-option')[0].classList.remove('active');
+            }
+            
+            if (localStorage.getItem('showSeconds') === 'true') toggleSeconds();
+            if (localStorage.getItem('is24Hour') === 'false') toggle24Hour();
+        };
+    </script>
+</body>
+</html>

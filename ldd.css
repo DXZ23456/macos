@@ -1,0 +1,205 @@
+﻿/* ========== 灵动岛 ========== */
+.dynamic-island {
+    position: fixed;
+    top: 8px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 120px;
+    height: 36px;
+    background: rgba(0, 0, 0, 0.82);
+    backdrop-filter: blur(20px) saturate(180%);
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 12px;
+    gap: 8px;
+    cursor: pointer;
+    z-index: 10001;
+    overflow: hidden;
+    transition: all 0.5s cubic-bezier(0.32, 0.72, 0, 1);
+    box-shadow: 0 4px 24px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.1);
+    border: 0.5px solid rgba(255,255,255,0.08);
+    font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif;
+}
+
+/* 展开状态 */
+.dynamic-island.expanded-small {
+    width: 320px;
+    height: 80px;
+    border-radius: 28px;
+    padding: 14px 20px;
+}
+.dynamic-island.expanded-large {
+    width: 380px;
+    height: 180px;
+    border-radius: 40px;
+    padding: 20px 24px;
+}
+
+/* 内容区域 */
+.island-content {
+    position: relative;
+    width: 100%;
+    height: 100%;
+}
+
+/* 紧凑区域 */
+.island-compact {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    color: #fff;
+    font-size: 12px;
+    font-weight: 500;
+    white-space: nowrap;
+    width: 100%;
+    height: 100%;
+    transition: opacity 0.3s ease;
+}
+.dynamic-island.expanded-small .island-compact,
+.dynamic-island.expanded-large .island-compact {
+    display: none;
+}
+
+/* 展开后的三个区域 */
+.island-left, .island-center, .island-right {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    opacity: 0;
+    transition: all 0.45s cubic-bezier(0.32, 0.72, 0, 1);
+}
+.dynamic-island.expanded-small .island-left,
+.dynamic-island.expanded-large .island-left,
+.dynamic-island.expanded-small .island-center,
+.dynamic-island.expanded-large .island-center,
+.dynamic-island.expanded-small .island-right,
+.dynamic-island.expanded-large .island-right {
+    opacity: 1;
+}
+
+.island-left {
+    left: 0;
+    transform: translateY(-50%) translateX(-16px) scale(0.85);
+}
+.dynamic-island.expanded-small .island-left,
+.dynamic-island.expanded-large .island-left {
+    transform: translateY(-50%) translateX(0) scale(1);
+}
+
+.island-right {
+    right: 0;
+    transform: translateY(-50%) translateX(16px) scale(0.85);
+}
+.dynamic-island.expanded-small .island-right,
+.dynamic-island.expanded-large .island-right {
+    transform: translateY(-50%) translateX(0) scale(1);
+}
+
+.island-center {
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0.9);
+    width: auto;
+    max-width: calc(100% - 100px);
+}
+.dynamic-island.expanded-small .island-center,
+.dynamic-island.expanded-large .island-center {
+    transform: translate(-50%, -50%) scale(1);
+}
+.dynamic-island.expanded-small .island-center {
+    width: 180px;
+}
+.dynamic-island.expanded-large .island-center {
+    width: 240px;
+}
+
+/* 子元素样式 */
+.island-title {
+    color: #fff;
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 1.3;
+}
+.island-subtitle {
+    color: rgba(255,255,255,0.55);
+    font-size: 12px;
+}
+.island-btn {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    background: rgba(255,255,255,0.12);
+    border: none;
+    color: white;
+    transition: 0.2s;
+}
+.island-btn:hover { transform: scale(1.05); }
+.island-btn-close { font-size: 14px; }
+.island-btn-play { background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.2); }
+
+.island-progress-track {
+    width: 100%;
+    height: 3px;
+    background: rgba(255,255,255,0.15);
+    border-radius: 2px;
+    margin: 6px 0;
+    display: block;
+}
+.island-progress-fill {
+    height: 100%;
+    background: #fff;
+    border-radius: 2px;
+    transition: width 0.3s ease;
+}
+.island-app-icon, .island-notification-icon {
+    width: 36px; height: 36px;
+    border-radius: 9px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    background: rgba(255,255,255,0.1);
+}
+
+/* 空闲状态 */
+.island-idle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    width: 100%;
+    height: 100%;
+    color: rgba(255,255,255,0.7);
+    font-size: 12px;
+}
+.island-idle-dot {
+    width: 5px; height: 5px;
+    border-radius: 50%;
+    background: #34c759;
+    animation: idleDotPulse 3s ease-in-out infinite;
+}
+@keyframes idleDotPulse {
+    0%,100% { opacity:0.6; transform:scale(1); }
+    50% { opacity:1; transform:scale(1.3); }
+}
+
+/* 深色模式支持 */
+body.dark-mode .dynamic-island {
+    background: rgba(28,28,30,0.92);
+}
+@media (max-width: 768px) {
+    .dynamic-island.expanded-large { width: 320px; height: 160px; }
+    .dynamic-island.expanded-small { width: 280px; height: 70px; }
+}
+@media (prefers-reduced-motion: reduce) {
+    .dynamic-island, .island-left, .island-center, .island-right, .island-progress-fill {
+        transition: none !important;
+        animation: none !important;
+    }
+}

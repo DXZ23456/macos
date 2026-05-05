@@ -1,0 +1,86 @@
+.boot-screen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: #000;
+    z-index: 20000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: opacity 1.5s ease-out, visibility 1.5s;
+}
+
+.boot-screen.hide-boot {
+    opacity: 0;
+    visibility: hidden;
+}
+
+.boot-logo,
+.boot-disclaimer,
+.boot-progress-container,
+.boot-hint {
+    display: none !important;
+}
+
+.loader {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0.2);
+
+    --from: 200px;
+    --to: 40px;
+    --size: 32px;
+    --time: 6s;
+    --count: 100;
+    --turns: 6;
+}
+
+.circle {
+    position: absolute;
+
+    --delay: calc(var(--time) / var(--count) * -1 * var(--i));
+    rotate: calc(var(--turns) * 1turn / var(--count) * var(--i));
+
+    animation: circle var(--time) var(--delay) ease-in-out infinite;
+}
+.circle::before {
+    content: "";
+    display: block;
+    width: var(--size);
+    aspect-ratio: 1/1;
+    border-radius: 50%;
+    background-color: white;
+    transform-origin: center center;
+
+    animation: circleSize var(--time) var(--delay) ease-in-out infinite;
+}
+
+/* rainbow color using HSL */
+.rainbow .circle::before {
+    background-color: hsl(
+        calc(1turn / (var(--count) / var(--turns)) * var(--i)) 100% 70%
+    );
+}
+
+/* animations */
+@keyframes circle {
+    from {
+        transform: translate(0, var(--from));
+    }
+    to {
+        transform: translate(0, var(--to));
+    }
+}
+@keyframes circleSize {
+    0%,
+    100% {
+        transform: scale(0);
+    }
+    25%,
+    50% {
+        transform: scale(1);
+    }
+}

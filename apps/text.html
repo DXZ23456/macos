@@ -1,0 +1,638 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>灵动岛功能测试</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            min-height: 100vh;
+            color: #fff;
+            padding: 40px 20px;
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        h1 {
+            text-align: center;
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            background: linear-gradient(90deg, #00d4ff, #7b2cbf);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .subtitle {
+            text-align: center;
+            color: rgba(255,255,255,0.5);
+            font-size: 14px;
+            margin-bottom: 40px;
+        }
+        .test-section {
+            background: rgba(255,255,255,0.06);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 20px;
+            padding: 28px;
+            margin-bottom: 24px;
+            backdrop-filter: blur(20px);
+        }
+        .section-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 6px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .section-title i {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            background: rgba(255,255,255,0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+        }
+        .section-desc {
+            color: rgba(255,255,255,0.45);
+            font-size: 13px;
+            margin-bottom: 20px;
+            padding-left: 42px;
+        }
+        .btn-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 12px;
+        }
+        .btn {
+            padding: 14px 18px;
+            border-radius: 14px;
+            border: none;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.2s ease;
+            background: rgba(255,255,255,0.08);
+            border: 1px solid rgba(255,255,255,0.12);
+        }
+        .btn:hover {
+            background: rgba(255,255,255,0.15);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+        }
+        .btn:active { transform: translateY(0); }
+        .btn i { font-size: 16px; }
+        .btn-blue { background: rgba(0,122,255,0.2); border-color: rgba(0,122,255,0.3); }
+        .btn-blue:hover { background: rgba(0,122,255,0.35); }
+        .btn-green { background: rgba(52,199,89,0.2); border-color: rgba(52,199,89,0.3); }
+        .btn-green:hover { background: rgba(52,199,89,0.35); }
+        .btn-red { background: rgba(255,59,48,0.2); border-color: rgba(255,59,48,0.3); }
+        .btn-red:hover { background: rgba(255,59,48,0.35); }
+        .btn-orange { background: rgba(255,149,0,0.2); border-color: rgba(255,149,0,0.3); }
+        .btn-orange:hover { background: rgba(255,149,0,0.35); }
+        .btn-purple { background: rgba(175,82,222,0.2); border-color: rgba(175,82,222,0.3); }
+        .btn-purple:hover { background: rgba(175,82,222,0.35); }
+        .btn-pink { background: rgba(255,45,85,0.2); border-color: rgba(255,45,85,0.3); }
+        .btn-pink:hover { background: rgba(255,45,85,0.35); }
+
+        .progress-demo {
+            margin-top: 16px;
+            padding: 16px;
+            background: rgba(0,0,0,0.2);
+            border-radius: 12px;
+            display: none;
+        }
+        .progress-demo.active { display: block; }
+        .progress-bar-track {
+            width: 100%;
+            height: 6px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 3px;
+            overflow: hidden;
+            margin-bottom: 10px;
+        }
+        .progress-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #007aff, #00d4ff);
+            border-radius: 3px;
+            transition: width 0.3s ease;
+            width: 0%;
+        }
+        .progress-info {
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px;
+            color: rgba(255,255,255,0.5);
+        }
+
+        .log-panel {
+            background: rgba(0,0,0,0.3);
+            border-radius: 16px;
+            padding: 20px;
+            margin-top: 20px;
+            font-family: 'SF Mono', 'Fira Code', monospace;
+            font-size: 12px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .log-panel .log-time { color: #34c759; margin-right: 8px; }
+        .log-panel .log-type { color: #ff9500; margin-right: 8px; }
+        .log-panel .log-msg { color: rgba(255,255,255,0.7); }
+        .log-panel .log-error { color: #ff3b30; }
+        .log-panel .log-success { color: #34c759; }
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+            margin-left: auto;
+        }
+        .status-badge.connected { background: rgba(52,199,89,0.2); color: #34c759; }
+        .status-badge.disconnected { background: rgba(255,59,48,0.2); color: #ff3b30; }
+
+        .header-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 30px;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 0.6; }
+            50% { opacity: 1; }
+        }
+        .pulse-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: currentColor;
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        .input-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+        }
+        .input-group input, .input-group select {
+            background: rgba(255,255,255,0.08);
+            border: 1px solid rgba(255,255,255,0.15);
+            border-radius: 10px;
+            padding: 10px 14px;
+            color: #fff;
+            font-size: 13px;
+            outline: none;
+            flex: 1;
+            min-width: 120px;
+        }
+        .input-group input::placeholder { color: rgba(255,255,255,0.3); }
+        .input-group input:focus, .input-group select:focus {
+            border-color: #007aff;
+        }
+
+        .custom-test {
+            margin-top: 16px;
+        }
+
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 3px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header-row">
+            <div>
+                <h1><i class="fa-solid fa-island-tropical" style="margin-right:10px;"></i>灵动岛功能测试</h1>
+                <p class="subtitle">在 iframe 中测试所有灵动岛 API 功能</p>
+            </div>
+            <div class="status-badge disconnected" id="conn-status">
+                <span class="pulse-dot"></span>
+                <span id="conn-text">未连接</span>
+            </div>
+        </div>
+
+        <!-- 通知测试 -->
+        <div class="test-section">
+            <div class="section-title">
+                <i class="fa-solid fa-bell" style="color:#007aff;"></i>
+                通知测试 (notify)
+            </div>
+            <p class="section-desc">临时弹窗，自动消失。可自定义标题、副标题、图标、颜色和显示时长。</p>
+            <div class="btn-grid">
+                <button class="btn btn-blue" onclick="testNotify('success')">
+                    <i class="fa-solid fa-check-circle"></i> 成功通知
+                </button>
+                <button class="btn btn-red" onclick="testNotify('error')">
+                    <i class="fa-solid fa-triangle-exclamation"></i> 错误通知
+                </button>
+                <button class="btn btn-orange" onclick="testNotify('warning')">
+                    <i class="fa-solid fa-circle-exclamation"></i> 警告通知
+                </button>
+                <button class="btn btn-green" onclick="testNotify('message')">
+                    <i class="fa-solid fa-comment-dots"></i> 消息通知
+                </button>
+                <button class="btn btn-purple" onclick="testNotify('download')">
+                    <i class="fa-solid fa-download"></i> 下载完成
+                </button>
+                <button class="btn btn-pink" onclick="testNotify('custom')">
+                    <i class="fa-solid fa-wand-magic-sparkles"></i> 自定义通知
+                </button>
+            </div>
+        </div>
+
+        <!-- 状态测试 -->
+        <div class="test-section">
+            <div class="section-title">
+                <i class="fa-solid fa-circle" style="color:#34c759;"></i>
+                状态测试 (status)
+            </div>
+            <p class="section-desc">持续显示的状态信息，不会自动消失，需手动调用 idle() 关闭。</p>
+            <div class="btn-grid">
+                <button class="btn btn-green" onclick="testStatus('vpn')">
+                    <i class="fa-solid fa-shield-halved"></i> VPN 已连接
+                </button>
+                <button class="btn btn-red" onclick="testStatus('record')">
+                    <i class="fa-solid fa-microphone"></i> 正在录音
+                </button>
+                <button class="btn btn-blue" onclick="testStatus('music')">
+                    <i class="fa-solid fa-music"></i> 音乐播放中
+                </button>
+                <button class="btn btn-orange" onclick="testStatus('location')">
+                    <i class="fa-solid fa-location-dot"></i> 定位服务
+                </button>
+                <button class="btn" onclick="testStatus('custom')">
+                    <i class="fa-solid fa-sliders"></i> 自定义状态
+                </button>
+                <button class="btn" style="background:rgba(255,255,255,0.04);" onclick="IslandAPI.idle(); log('手动关闭状态', 'idle')">
+                    <i class="fa-solid fa-xmark"></i> 关闭状态
+                </button>
+            </div>
+        </div>
+
+        <!-- 进度条测试 -->
+        <div class="test-section">
+            <div class="section-title">
+                <i class="fa-solid fa-spinner" style="color:#007aff;"></i>
+                进度条测试 (progress)
+            </div>
+            <p class="section-desc">带进度条的任务状态，支持实时更新进度。默认使用大尺寸卡片。</p>
+            <div class="btn-grid">
+                <button class="btn btn-blue" onclick="testProgress('upload')">
+                    <i class="fa-solid fa-cloud-arrow-up"></i> 模拟上传
+                </button>
+                <button class="btn btn-purple" onclick="testProgress('install')">
+                    <i class="fa-solid fa-rotate"></i> 模拟安装
+                </button>
+                <button class="btn btn-green" onclick="testProgress('download')">
+                    <i class="fa-solid fa-cloud-arrow-down"></i> 模拟下载
+                </button>
+                <button class="btn btn-orange" onclick="testProgress('sync')">
+                    <i class="fa-solid fa-rotate"></i> 模拟同步
+                </button>
+                <button class="btn" onclick="stopProgress()">
+                    <i class="fa-solid fa-stop"></i> 停止进度
+                </button>
+                <button class="btn" style="background:rgba(255,255,255,0.04);" onclick="IslandAPI.idle(); log('手动关闭进度', 'idle')">
+                    <i class="fa-solid fa-xmark"></i> 关闭进度
+                </button>
+            </div>
+            <div class="progress-demo" id="progress-demo">
+                <div class="progress-bar-track">
+                    <div class="progress-bar-fill" id="progress-fill"></div>
+                </div>
+                <div class="progress-info">
+                    <span id="progress-label">准备中...</span>
+                    <span id="progress-percent">0%</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- 自定义测试 -->
+        <div class="test-section">
+            <div class="section-title">
+                <i class="fa-solid fa-code" style="color:#af52de;"></i>
+                自定义测试
+            </div>
+            <p class="section-desc">自由组合参数，测试各种边界情况。</p>
+            <div class="custom-test">
+                <div class="input-group">
+                    <select id="custom-mode">
+                        <option value="notify">notify (通知)</option>
+                        <option value="status">status (状态)</option>
+                        <option value="progress">progress (进度)</option>
+                    </select>
+                    <input type="text" id="custom-title" placeholder="标题" value="自定义标题">
+                    <input type="text" id="custom-subtitle" placeholder="副标题（可选）" value="自定义副标题">
+                    <input type="text" id="custom-icon" placeholder="图标类名" value="fa-star">
+                    <input type="text" id="custom-color" placeholder="颜色" value="#ff9500">
+                </div>
+                <div class="input-group">
+                    <input type="number" id="custom-duration" placeholder="时长(ms)" value="3000" style="max-width:100px;">
+                    <select id="custom-size">
+                        <option value="small">small (小)</option>
+                        <option value="large">large (大)</option>
+                    </select>
+                    <button class="btn btn-purple" onclick="testCustom()" style="flex:0; padding:10px 24px;">
+                        <i class="fa-solid fa-paper-plane"></i> 发送
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 日志面板 -->
+        <div class="test-section">
+            <div class="section-title">
+                <i class="fa-solid fa-terminal" style="color:#8e8e93;"></i>
+                通信日志
+            </div>
+            <p class="section-desc">查看 postMessage 通信详情和 API 调用记录。</p>
+            <div class="log-panel" id="log-panel">
+                <div style="color:rgba(255,255,255,0.3); text-align:center; padding:20px;">
+                    点击上方按钮开始测试...
+                </div>
+            </div>
+            <div style="display:flex; gap:10px; margin-top:12px;">
+                <button class="btn" onclick="clearLog()" style="font-size:12px; padding:8px 16px;">
+                    <i class="fa-solid fa-trash"></i> 清空日志
+                </button>
+                <button class="btn" onclick="copyLog()" style="font-size:12px; padding:8px 16px;">
+                    <i class="fa-solid fa-copy"></i> 复制日志
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="../island-api.js"></script>
+    <script>
+        // ========== 日志系统 ==========
+        const logPanel = document.getElementById('log-panel');
+        let logs = [];
+
+        function log(msg, type = 'info', data = null) {
+            const time = new Date().toLocaleTimeString('zh-CN', { hour12: false });
+            const entry = { time, type, msg, data };
+            logs.push(entry);
+
+            const div = document.createElement('div');
+            div.style.marginBottom = '6px';
+            div.style.lineHeight = '1.6';
+
+            let typeColor = 'log-type';
+            if (type === 'error') typeColor = 'log-error';
+            if (type === 'success') typeColor = 'log-success';
+
+            let dataHtml = '';
+            if (data) {
+                dataHtml = `<div style="margin-left:20px; color:rgba(255,255,255,0.4); font-size:11px; margin-top:2px;">${JSON.stringify(data, null, 2).replace(/\\n/g, '<br>')}</div>`;
+            }
+
+            div.innerHTML = `<span class="log-time">[${time}]</span><span class="${typeColor}">[${type.toUpperCase()}]</span><span class="log-msg">${msg}</span>${dataHtml}`;
+
+            if (logPanel.children.length === 1 && logPanel.children[0].style.textAlign === 'center') {
+                logPanel.innerHTML = '';
+            }
+            logPanel.appendChild(div);
+            logPanel.scrollTop = logPanel.scrollHeight;
+        }
+
+        function clearLog() {
+            logs = [];
+            logPanel.innerHTML = '<div style="color:rgba(255,255,255,0.3); text-align:center; padding:20px;">日志已清空，点击按钮开始测试...</div>';
+        }
+
+        function copyLog() {
+            const text = logs.map(l => `[${l.time}] [${l.type.toUpperCase()}] ${l.msg}${l.data ? ' ' + JSON.stringify(l.data) : ''}`).join('\\n');
+            navigator.clipboard.writeText(text).then(() => {
+                log('日志已复制到剪贴板', 'success');
+            });
+        }
+
+        // ========== 连接状态检测 ==========
+        function checkConnection() {
+            const isIframe = window.parent !== window;
+            const badge = document.getElementById('conn-status');
+            const text = document.getElementById('conn-text');
+            if (isIframe) {
+                badge.className = 'status-badge connected';
+                text.textContent = '已连接到父页面';
+                log('检测到 iframe 环境，已连接到父页面', 'success');
+            } else {
+                badge.className = 'status-badge disconnected';
+                text.textContent = '独立页面（非 iframe）';
+                log('警告：当前不在 iframe 中，postMessage 将发送到自身', 'error');
+            }
+        }
+
+        // ========== 通知测试 ==========
+        function testNotify(type) {
+            const configs = {
+                success: {
+                    title: '操作成功',
+                    subtitle: '文件已成功保存到下载文件夹',
+                    icon: 'fa-check-circle',
+                    iconColor: '#34c759',
+                    duration: 3000
+                },
+                error: {
+                    title: '操作失败',
+                    subtitle: '网络连接超时，请稍后重试',
+                    icon: 'fa-triangle-exclamation',
+                    iconColor: '#ff3b30',
+                    duration: 4000
+                },
+                warning: {
+                    title: '存储空间不足',
+                    subtitle: '剩余空间仅剩 1.2GB',
+                    icon: 'fa-circle-exclamation',
+                    iconColor: '#ff9500',
+                    duration: 5000
+                },
+                message: {
+                    title: '新消息',
+                    subtitle: '张三：今晚有空一起吃饭吗？',
+                    icon: 'fa-comment-dots',
+                    iconColor: '#007aff',
+                    duration: 4000
+                },
+                download: {
+                    title: '下载完成',
+                    subtitle: 'macOS_Sequoia.dmg (12.5 GB)',
+                    icon: 'fa-download',
+                    iconColor: '#af52de',
+                    duration: 3000
+                },
+                custom: {
+                    title: '自定义通知',
+                    subtitle: '你可以修改这里的文字测试任意内容',
+                    icon: 'fa-wand-magic-sparkles',
+                    iconColor: '#ff2d55',
+                    duration: 6000,
+                    cardSize: 'large'
+                }
+            };
+            const cfg = configs[type];
+            IslandAPI.notify(cfg);
+            log(`发送通知: ${cfg.title}`, 'notify', cfg);
+        }
+
+        // ========== 状态测试 ==========
+        function testStatus(type) {
+            const configs = {
+                vpn: {
+                    title: 'VPN 已连接',
+                    subtitle: '东京节点 • 延迟 28ms',
+                    icon: 'fa-shield-halved',
+                    iconColor: '#34c759'
+                },
+                record: {
+                    title: '正在录音',
+                    subtitle: '00:42',
+                    icon: 'fa-microphone',
+                    iconColor: '#ff3b30'
+                },
+                music: {
+                    title: 'Cruel Summer',
+                    subtitle: 'Taylor Swift • Lover',
+                    icon: 'fa-music',
+                    iconColor: '#ff2d55'
+                },
+                location: {
+                    title: '定位服务活跃',
+                    subtitle: '精确位置 • 微信',
+                    icon: 'fa-location-dot',
+                    iconColor: '#ff9500'
+                },
+                custom: {
+                    title: '自定义状态',
+                    subtitle: '编辑这段文字测试不同长度内容',
+                    icon: 'fa-sliders',
+                    iconColor: '#8e8e93',
+                    cardSize: 'large'
+                }
+            };
+            const cfg = configs[type];
+            IslandAPI.status(cfg);
+            log(`发送状态: ${cfg.title}`, 'status', cfg);
+        }
+
+        // ========== 进度条测试 ==========
+        let progressInterval = null;
+        let currentProgress = 0;
+
+        function testProgress(type) {
+            stopProgress();
+            currentProgress = 0;
+
+            const configs = {
+                upload: { title: '正在上传...', subtitle: 'document.pdf', icon: 'fa-cloud-arrow-up', iconColor: '#007aff' },
+                install: { title: '正在安装...', subtitle: 'macOS 15.1 更新', icon: 'fa-rotate', iconColor: '#af52de' },
+                download: { title: '正在下载...', subtitle: 'Xcode_16.xip', icon: 'fa-cloud-arrow-down', iconColor: '#34c759' },
+                sync: { title: '正在同步...', subtitle: 'iCloud 照片库', icon: 'fa-rotate', iconColor: '#ff9500' }
+            };
+            const cfg = configs[type];
+            IslandAPI.progress({ ...cfg, progress: 0, progressText: '准备中...' });
+            log(`开始进度任务: ${cfg.title}`, 'progress', cfg);
+
+            const demo = document.getElementById('progress-demo');
+            const fill = document.getElementById('progress-fill');
+            const label = document.getElementById('progress-label');
+            const percent = document.getElementById('progress-percent');
+            demo.classList.add('active');
+
+            const steps = [
+                { p: 10, t: '正在连接服务器...' },
+                { p: 25, t: '正在传输数据...' },
+                { p: 45, t: '已处理 45%' },
+                { p: 60, t: '正在验证文件完整性...' },
+                { p: 78, t: '即将完成...' },
+                { p: 92, t: '正在保存...' },
+                { p: 100, t: '完成！' }
+            ];
+            let stepIdx = 0;
+
+            progressInterval = setInterval(() => {
+                if (stepIdx < steps.length) {
+                    const s = steps[stepIdx];
+                    currentProgress = s.p;
+                    IslandAPI.setProgress(s.p, s.t);
+                    fill.style.width = s.p + '%';
+                    label.textContent = s.t;
+                    percent.textContent = s.p + '%';
+                    log(`进度更新: ${s.p}% - ${s.t}`, 'progress');
+                    stepIdx++;
+                } else {
+                    clearInterval(progressInterval);
+                    setTimeout(() => {
+                        IslandAPI.idle();
+                        demo.classList.remove('active');
+                        fill.style.width = '0%';
+                        log('进度任务完成，已关闭', 'success');
+                    }, 1200);
+                }
+            }, 800);
+        }
+
+        function stopProgress() {
+            if (progressInterval) {
+                clearInterval(progressInterval);
+                progressInterval = null;
+                log('进度任务已手动停止', 'info');
+            }
+        }
+
+        // ========== 自定义测试 ==========
+        function testCustom() {
+            const mode = document.getElementById('custom-mode').value;
+            const title = document.getElementById('custom-title').value || '自定义标题';
+            const subtitle = document.getElementById('custom-subtitle').value;
+            const icon = document.getElementById('custom-icon').value || 'fa-star';
+            const color = document.getElementById('custom-color').value || '#ff9500';
+            const duration = parseInt(document.getElementById('custom-duration').value) || 3000;
+            const size = document.getElementById('custom-size').value;
+
+            const payload = {
+                title,
+                subtitle,
+                icon,
+                iconColor: color,
+                cardSize: size
+            };
+            if (mode === 'notify') payload.duration = duration;
+            if (mode === 'progress') {
+                payload.progress = 0;
+                payload.progressText = subtitle;
+            }
+
+            IslandAPI[mode](payload);
+            log(`自定义 ${mode}: ${title}`, mode, payload);
+        }
+
+        // ========== 初始化 ==========
+        window.addEventListener('DOMContentLoaded', () => {
+            checkConnection();
+            log('测试页面已加载，准备就绪', 'success');
+        });
+
+        // 监听来自父页面的消息（调试用）
+        window.addEventListener('message', (e) => {
+            log(`收到父页面消息: ${JSON.stringify(e.data)}`, 'info');
+        });
+    </script>
+</body>
+</html>

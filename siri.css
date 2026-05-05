@@ -1,0 +1,305 @@
+﻿/* siri.css - 透明面板版本 */
+#siri-panel {
+  position: fixed;
+  top: 48px;
+  right: 16px;          
+  width: 380px;
+  max-width: calc(100vw - 32px);
+  /* 背景改为高度透明（原 0.92 → 0.2），保留模糊效果以达到通透毛玻璃 */
+  background: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(32px) saturate(180%);
+  -webkit-backdrop-filter: blur(32px) saturate(180%);
+  border-radius: 24px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2), 0 8px 16px rgba(0, 0, 0, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.6);
+  opacity: 0;
+  transform: scale(0.95) translateY(-8px);
+  pointer-events: none;
+  transition: opacity 0.25s cubic-bezier(0.2, 0.9, 0.4, 1.1), transform 0.25s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+  z-index: 50002;
+  padding: 20px 16px 20px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  transform-origin: top right;
+}
+#siri-panel.active {
+  opacity: 1;
+  transform: scale(1) translateY(0);
+  pointer-events: auto;
+}
+body.dark-mode #siri-panel {
+  /* 深色模式背景也更透明，原 0.92 → 0.15，保持深色毛玻璃 */
+  background: rgba(40, 40, 48, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+}
+
+#poda {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  width: 100%;
+  margin-bottom: 0;
+}
+.white, .border, .darkBorderBg, .glow {
+  max-height: 70px;
+  max-width: 314px;
+  height: 100%;
+  width: 100%;
+  position: absolute;
+  overflow: hidden;
+  z-index: -1;
+  border-radius: 12px;
+  filter: blur(3px);
+}
+.input {
+  background-color: #010201;
+  border: none;
+  width: 301px;
+  height: 56px;
+  border-radius: 10px;
+  color: white;
+  padding-inline: 59px;
+  font-size: 18px;
+  position: relative;
+  z-index: 2;
+}
+.input::placeholder { color: #c0b9c0; }
+.input:focus { outline: none; }
+#main:focus-within > #input-mask { display: none; }
+#input-mask {
+  pointer-events: none;
+  width: 100px;
+  height: 20px;
+  position: absolute;
+  background: linear-gradient(90deg, transparent, black);
+  top: 18px;
+  left: 70px;
+  z-index: 3;
+}
+#pink-mask {
+  pointer-events: none;
+  width: 30px;
+  height: 20px;
+  position: absolute;
+  background: #cf30aa;
+  top: 10px;
+  left: 5px;
+  filter: blur(20px);
+  opacity: 0.8;
+  transition: all 2s;
+  z-index: 3;
+}
+#main:hover > #pink-mask { opacity: 0; }
+.white {
+  max-height: 63px;
+  max-width: 307px;
+  border-radius: 10px;
+  filter: blur(2px);
+}
+.white::before {
+  content: "";
+  z-index: -2;
+  text-align: center;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) rotate(83deg);
+  position: absolute;
+  width: 600px;
+  height: 600px;
+  background-repeat: no-repeat;
+  background-position: 0 0;
+  filter: brightness(1.4);
+  background-image: conic-gradient(rgba(0,0,0,0) 0%, #a099d8, rgba(0,0,0,0) 8%, rgba(0,0,0,0) 50%, #dfa2da, rgba(0,0,0,0) 58%);
+  transition: all 2s;
+}
+.border {
+  max-height: 59px;
+  max-width: 303px;
+  border-radius: 11px;
+  filter: blur(0.5px);
+}
+.border::before {
+  content: "";
+  z-index: -2;
+  text-align: center;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) rotate(70deg);
+  position: absolute;
+  width: 600px;
+  height: 600px;
+  filter: brightness(1.3);
+  background-repeat: no-repeat;
+  background-position: 0 0;
+  background-image: conic-gradient(#1c191c, #402fb5 5%, #1c191c 14%, #1c191c 50%, #cf30aa 60%, #1c191c 64%);
+  transition: all 2s;
+}
+.darkBorderBg {
+  max-height: 65px;
+  max-width: 312px;
+}
+.darkBorderBg::before {
+  content: "";
+  z-index: -2;
+  text-align: center;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) rotate(82deg);
+  position: absolute;
+  width: 600px;
+  height: 600px;
+  background-repeat: no-repeat;
+  background-position: 0 0;
+  background-image: conic-gradient(rgba(0,0,0,0), #18116a, rgba(0,0,0,0) 10%, rgba(0,0,0,0) 50%, #6e1b60, rgba(0,0,0,0) 60%);
+  transition: all 2s;
+}
+#poda:hover > .darkBorderBg::before { transform: translate(-50%, -50%) rotate(262deg); }
+#poda:hover > .glow::before { transform: translate(-50%, -50%) rotate(240deg); }
+#poda:hover > .white::before { transform: translate(-50%, -50%) rotate(263deg); }
+#poda:hover > .border::before { transform: translate(-50%, -50%) rotate(250deg); }
+#poda:hover > .darkBorderBg::before { transform: translate(-50%, -50%) rotate(-98deg); }
+#poda:hover > .glow::before { transform: translate(-50%, -50%) rotate(-120deg); }
+#poda:hover > .white::before { transform: translate(-50%, -50%) rotate(-97deg); }
+#poda:hover > .border::before { transform: translate(-50%, -50%) rotate(-110deg); }
+#poda:focus-within > .darkBorderBg::before { transform: translate(-50%, -50%) rotate(442deg); transition: all 4s; }
+#poda:focus-within > .glow::before { transform: translate(-50%, -50%) rotate(420deg); transition: all 4s; }
+#poda:focus-within > .white::before { transform: translate(-50%, -50%) rotate(443deg); transition: all 4s; }
+#poda:focus-within > .border::before { transform: translate(-50%, -50%) rotate(430deg); transition: all 4s; }
+.glow {
+  overflow: hidden;
+  filter: blur(30px);
+  opacity: 0.4;
+  max-height: 130px;
+  max-width: 354px;
+}
+.glow:before {
+  content: "";
+  z-index: -2;
+  text-align: center;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) rotate(60deg);
+  position: absolute;
+  width: 999px;
+  height: 999px;
+  background-repeat: no-repeat;
+  background-position: 0 0;
+  background-image: conic-gradient(#000, #402fb5 5%, #000 38%, #000 50%, #cf30aa 60%, #000 87%);
+  transition: all 2s;
+}
+@keyframes rotate { 100% { transform: translate(-50%, -50%) rotate(450deg); } }
+@keyframes leftright {
+  0% { transform: translate(0px, 0px); opacity: 1; }
+  49% { transform: translate(250px, 0px); opacity: 0; }
+  80% { transform: translate(-40px, 0px); opacity: 0; }
+  100% { transform: translate(0px, 0px); opacity: 1; }
+}
+#main { position: relative; display: flex; justify-content: center; width: 100%; }
+#search-icon {
+  position: absolute;
+  left: 20px;
+  top: 15px;
+  z-index: 5;
+}
+body.dark-mode .input {
+  background-color: #1c1c1e;
+  color: white;
+}
+body.dark-mode .input::placeholder { color: #8e8e93; }
+
+/* 聊天容器 */
+#siri-chat-container {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-height: 360px;
+  min-height: 180px;
+  overflow-y: auto;
+  padding: 4px 4px 8px 4px;
+  scroll-behavior: smooth;
+}
+#siri-chat-container::-webkit-scrollbar { width: 6px; }
+#siri-chat-container::-webkit-scrollbar-track { background: transparent; }
+#siri-chat-container::-webkit-scrollbar-thumb { background: rgba(120,120,128,0.35); border-radius: 3px; }
+
+/* 聊天气泡 */
+.user-bubble {
+  align-self: flex-end;
+  background: linear-gradient(135deg, #8400ff, #8700d5);
+  color: white;
+  padding: 10px 16px;
+  border-radius: 22px 22px 6px 22px;
+  max-width: 85%;
+  font-size: 15px;
+  line-height: 1.4;
+  box-shadow: 0 2px 12px rgba(0,122,255,0.2);
+  animation: messagePop 0.25s cubic-bezier(0.175,0.885,0.32,1.275);
+}
+.siri-bubble {
+  align-self: flex-start;
+  /* 气泡背景稍微调高不透明度以保证文字可读，但仍保持半透 */
+  background: rgba(255, 255, 255, 0.75);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  color: #1c1c1e;
+  padding: 10px 16px;
+  border-radius: 22px 22px 22px 6px;
+  max-width: 85%;
+  font-size: 15px;
+  line-height: 1.5;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+  border: 1px solid rgba(255,255,255,0.5);
+  animation: messagePop 0.25s cubic-bezier(0.175,0.885,0.32,1.275);
+}
+.siri-bubble.thinking {
+  background: rgba(240,240,242,0.5);
+  color: #8e8e93;
+  font-style: italic;
+}
+.thinking-dots {
+  display: inline-flex;
+  gap: 4px;
+  align-items: center;
+  margin-left: 6px;
+}
+.thinking-dots span {
+  width: 6px;
+  height: 6px;
+  background: #8e8e93;
+  border-radius: 50%;
+  animation: thinkingDot 1.4s ease-in-out infinite both;
+}
+.thinking-dots span:nth-child(1) { animation-delay: -0.32s; }
+.thinking-dots span:nth-child(2) { animation-delay: -0.16s; }
+@keyframes thinkingDot {
+  0%,80%,100% { transform: scale(0.6); opacity: 0.5; }
+  40% { transform: scale(1); opacity: 1; }
+}
+body.dark-mode .siri-bubble {
+  background: rgba(45, 45, 52, 0.7);
+  color: #f5f5f7;
+  border: 1px solid rgba(255,255,255,0.1);
+}
+body.dark-mode .siri-bubble.thinking {
+  background: rgba(60,60,68,0.6);
+  color: #aaa;
+}
+@keyframes messagePop {
+  0% { opacity: 0; transform: scale(0.92) translateY(10px); }
+  70% { transform: scale(1.01); }
+  100% { opacity: 1; transform: scale(1) translateY(0); }
+}
+@media (max-width: 640px) {
+  #siri-panel {
+    width: calc(100vw - 32px);
+    right: 16px;
+    top: 52px;
+    transform-origin: top right;
+  }
+  .input { width: calc(100% - 48px); max-width: 301px; padding-inline: 40px; }
+  #search-icon { left: 12px; }
+}
