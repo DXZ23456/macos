@@ -2,9 +2,7 @@
 
 <div align="center">
 
-![GitHub stars](https://img.shields.io/github/stars/DXZ23456/macos?style=flat-square&logo=github) ![GitHub forks](https://img.shields.io/github/forks/DXZ23456/macos?style=flat-square&logo=github) ![HTML](https://img.shields.io/badge/HTML-67%25-E34C26?style=flat-square&logo=html5) ![JavaScript](https://img.shields.io/badge/JavaScript-22%25-F7DF1E?style=flat-square&logo=javascript) ![CSS](https://img.shields.io/badge/CSS-11%25-1572B6?style=flat-square&logo=css3)
-
-[![Demo](https://img.shields.io/badge/Demo-Live%20Preview-brightgreen?style=flat-square)](https://macos.dxzpages.cc.cd)
+![GitHub stars](https://img.shields.io/github/stars/DXZ23456/macos?style=flat-square&logo=github) ![GitHub forks](https://img.shields.io/github/forks/DXZ23456/macos?style=flat-square&logo=github) ![HTML](https://img.shields.io/badge/HTML-67%25-E34C26?style=flat-square&logo=html5) ![JavaScript](https://img.shields.io/badge/JavaScript-22%25-F7DF1E?style=flat-square&logo=javascript) ![CSS](https://img.shields.io/badge/CSS-11%25-1572B6?style=flat-square&logo=css3)[![Demo](https://img.shields.io/badge/Demo-Live%20Preview-brightgreen?style=flat-square)](https://macos.dxzpages.cc.cd)
 
 </div>
 
